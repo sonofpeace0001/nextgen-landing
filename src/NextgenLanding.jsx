@@ -89,6 +89,7 @@ function AccentText({ children }) {
 // Official community links.
 const X_URL = "https://x.com/G_NEXTGEN";
 const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
+const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
 function XIcon({ size = 16 }) {
   return (
@@ -129,6 +130,31 @@ function SocialIconLink({ href, label, children }) {
         color: hov ? "#F5F5F7" : "#9CA3AF",
         transition: "border 0.15s ease, background 0.15s ease, color 0.15s ease",
       }}
+    >
+      {children}
+    </a>
+  );
+}
+
+// Inline icon + text link that brightens on hover.
+function IconTextLink({ href, label, children }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        fontSize: 14,
+        color: hov ? "#F5F5F7" : "#9CA3AF",
+        transition: "color 0.15s ease",
+      }}
+      aria-label={label}
     >
       {children}
     </a>
@@ -1552,6 +1578,50 @@ export default function NextgenLanding() {
               </span>
             </div>
           </FadeUp>
+        </div>
+      </section>
+
+      {/* ── FOUNDER ── */}
+      <section style={{ ...S.border, ...S.sectionPad }}>
+        <div style={S.container}>
+          <div
+            style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "center" }}
+            className="two-col"
+          >
+            <FadeUp>
+              <div
+                style={{
+                  width: "100%",
+                  maxWidth: 300,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  background: "#000",
+                }}
+              >
+                <img
+                  src="/founder.jpg"
+                  alt="SON OF PEACE, founder of NEXTGEN"
+                  width="720"
+                  height="720"
+                  loading="lazy"
+                  style={{ width: "100%", height: "auto", display: "block" }}
+                />
+              </div>
+            </FadeUp>
+
+            <FadeUp delay={80}>
+              <span style={S.eyebrow}>The founder</span>
+              <h2 style={{ ...S.h2, fontSize: "clamp(26px,3vw,40px)", marginBottom: 18 }}>SON OF PEACE</h2>
+              <p style={{ ...S.body, marginBottom: 26, maxWidth: 460 }}>
+                SON OF PEACE started NEXTGEN to give people a real path into the new tech economy — not more theory, but skills, a community, and opportunities you can actually act on.
+              </p>
+              <IconTextLink href={FOUNDER_X_URL} label="SON OF PEACE on X">
+                <XIcon size={14} />
+                @sonofpeace0001
+              </IconTextLink>
+            </FadeUp>
+          </div>
         </div>
       </section>
 
