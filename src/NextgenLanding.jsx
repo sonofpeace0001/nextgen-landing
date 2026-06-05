@@ -52,20 +52,15 @@ function FadeUp({ children, delay = 0, className = "" }) {
   );
 }
 
-function LogoMark({ size = 28 }) {
+// The NEXTGEN mark. Real artwork (217:256), shown at a given height.
+function LogoMark({ size = 28, alt = "" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <defs>
-        <linearGradient id="xgrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#E27FE0" />
-          <stop offset="50%" stopColor="#A855F7" />
-          <stop offset="100%" stopColor="#7C3AED" />
-        </linearGradient>
-      </defs>
-      <line x1="4" y1="4" x2="28" y2="28" stroke="url(#xgrad)" strokeWidth="4.5" strokeLinecap="round" />
-      <line x1="28" y1="4" x2="4" y2="28" stroke="url(#xgrad)" strokeWidth="4.5" strokeLinecap="round" />
-      <line x1="16" y1="15" x2="16" y2="28" stroke="url(#xgrad)" strokeWidth="4.5" strokeLinecap="round" />
-    </svg>
+    <img
+      src="/logo.png"
+      alt={alt}
+      aria-hidden={alt === "" ? "true" : undefined}
+      style={{ display: "block", height: size, width: "auto" }}
+    />
   );
 }
 
@@ -384,10 +379,6 @@ function HeroVisual() {
             />
           );
         })}
-        {/* Center X mark — the brand mark */}
-        <line x1="197" y1="164" x2="243" y2="210" stroke="url(#vg1)" strokeWidth="3.5" strokeLinecap="round" />
-        <line x1="243" y1="164" x2="197" y2="210" stroke="url(#vg1)" strokeWidth="3.5" strokeLinecap="round" />
-        <line x1="220" y1="183" x2="220" y2="210" stroke="url(#vg1)" strokeWidth="3.5" strokeLinecap="round" />
         {/* Vertex dots */}
         {[[220,28],[388,118],[388,248],[220,338],[52,248],[52,118]].map(([cx,cy],i) => (
           <circle key={i} cx={cx} cy={cy} r="3.5" fill="url(#vg1)" fillOpacity="0.7" />
@@ -399,6 +390,21 @@ function HeroVisual() {
           <circle key={i} cx={cx} cy={cy} r="1.5" fill="url(#vg1)" fillOpacity="0.3" />
         ))}
       </svg>
+      {/* Real brand mark, centered within the constellation */}
+      <img
+        src="/logo.png"
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          height: 156,
+          width: "auto",
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 }
@@ -1176,6 +1182,17 @@ export default function NextgenLanding() {
     { label: "FAQ", href: "#faq" },
   ];
 
+  // Most join/apply CTAs funnel into the Discord community.
+  const openDiscord = () => {
+    if (typeof window !== "undefined") window.open(DISCORD_URL, "_blank", "noopener,noreferrer");
+  };
+  const scrollToElite = () => {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById("elite");
+      if (el) el.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
+    }
+  };
+
   return (
     <div style={{ ...S.base, fontFamily: "'Inter','Geist',system-ui,-apple-system,sans-serif", overflowX: "hidden" }}>
       <style>{`
@@ -1218,8 +1235,8 @@ export default function NextgenLanding() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }} className="hidden-mobile">
-            <GhostButton small>Log in</GhostButton>
-            <PrimaryButton>Join NEXTGEN</PrimaryButton>
+            <GhostButton small onClick={openDiscord}>Log in</GhostButton>
+            <PrimaryButton onClick={openDiscord}>Join NEXTGEN</PrimaryButton>
           </div>
 
           <button
@@ -1239,8 +1256,8 @@ export default function NextgenLanding() {
               </a>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingTop: 8 }}>
-              <GhostButton>Log in</GhostButton>
-              <PrimaryButton>Join NEXTGEN</PrimaryButton>
+              <GhostButton onClick={openDiscord}>Log in</GhostButton>
+              <PrimaryButton onClick={openDiscord}>Join NEXTGEN</PrimaryButton>
             </div>
           </div>
         )}
@@ -1283,8 +1300,8 @@ export default function NextgenLanding() {
                 </p>
               </div>
               <div style={{ ...hi(200), display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <PrimaryButton>Join free</PrimaryButton>
-                <GhostButton>Explore Elite</GhostButton>
+                <PrimaryButton onClick={openDiscord}>Join free</PrimaryButton>
+                <GhostButton onClick={scrollToElite}>Explore Elite</GhostButton>
               </div>
             </div>
             <div style={{ ...hi(110) }} className="hero-visual">
@@ -1444,8 +1461,8 @@ export default function NextgenLanding() {
 
           <FadeUp delay={120}>
             <div style={{ marginTop: 36, display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <PrimaryButton>Apply for Elite</PrimaryButton>
-              <GhostButton>Join free</GhostButton>
+              <PrimaryButton onClick={openDiscord}>Apply for Elite</PrimaryButton>
+              <GhostButton onClick={openDiscord}>Join free</GhostButton>
             </div>
           </FadeUp>
         </div>
@@ -1561,8 +1578,8 @@ export default function NextgenLanding() {
           </FadeUp>
           <FadeUp delay={140}>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <PrimaryButton>Join NEXTGEN</PrimaryButton>
-              <GhostButton>Apply for Elite</GhostButton>
+              <PrimaryButton onClick={openDiscord}>Join NEXTGEN</PrimaryButton>
+              <GhostButton onClick={openDiscord}>Apply for Elite</GhostButton>
             </div>
           </FadeUp>
           <FadeUp delay={200}>
