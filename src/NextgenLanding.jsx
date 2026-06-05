@@ -86,6 +86,55 @@ function AccentText({ children }) {
   );
 }
 
+// Official community links.
+const X_URL = "https://x.com/G_NEXTGEN";
+const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
+
+function XIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function DiscordIcon({ size = 17 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+    </svg>
+  );
+}
+
+// Bordered icon button for X / Discord — lifts via border, no shadow.
+function SocialIconLink({ href, label, children }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 38,
+        height: 38,
+        borderRadius: 8,
+        border: hov ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,255,255,0.08)",
+        background: hov ? "rgba(255,255,255,0.04)" : "transparent",
+        color: hov ? "#F5F5F7" : "#9CA3AF",
+        transition: "border 0.15s ease, background 0.15s ease, color 0.15s ease",
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
 function PrimaryButton({ children, onClick }) {
   const [hov, setHov] = useState(false);
   return (
@@ -1490,6 +1539,19 @@ export default function NextgenLanding() {
               <GhostButton>Apply for Elite</GhostButton>
             </div>
           </FadeUp>
+          <FadeUp delay={200}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 36 }}>
+              <span style={{ fontSize: 13, color: "#6B7280" }}>Or come hang out</span>
+              <span style={{ display: "flex", gap: 10 }}>
+                <SocialIconLink href={X_URL} label="NEXTGEN on X">
+                  <XIcon size={15} />
+                </SocialIconLink>
+                <SocialIconLink href={DISCORD_URL} label="NEXTGEN on Discord">
+                  <DiscordIcon size={17} />
+                </SocialIconLink>
+              </span>
+            </div>
+          </FadeUp>
         </div>
       </section>
 
@@ -1510,9 +1572,17 @@ export default function NextgenLanding() {
                 NEXTGEN
               </span>
             </a>
-            <p style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: "#6B7280", lineHeight: 1.5, marginBottom: 18 }}>
               The future-skills community.<br />Build, earn, and grow.
             </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <SocialIconLink href={X_URL} label="NEXTGEN on X">
+                <XIcon size={15} />
+              </SocialIconLink>
+              <SocialIconLink href={DISCORD_URL} label="NEXTGEN on Discord">
+                <DiscordIcon size={17} />
+              </SocialIconLink>
+            </div>
           </div>
 
           <div style={{ display: "flex", gap: 28, flexWrap: "wrap", alignItems: "center" }}>
