@@ -28,7 +28,7 @@ describe("buildPathView", () => {
     const view = buildPathView({
       plan,
       days,
-      submissions: [{ day_id: "a", submitted_at: day(1).toISOString() }],
+      submissions: [{ day_id: "a", submitted_at: day(1).toISOString(), status: "scored" }],
       enrollment: { start_date: day(1), unlock_mode: "completion" },
       today: day(1),
     });
@@ -41,7 +41,7 @@ describe("buildPathView", () => {
     const view = buildPathView({
       plan,
       days,
-      submissions: [{ day_id: "a", submitted_at: day(1).toISOString() }],
+      submissions: [{ day_id: "a", submitted_at: day(1).toISOString(), status: "scored" }],
       enrollment: { start_date: day(1), unlock_mode: "completion_capped" },
       today: day(1),
     });
@@ -53,10 +53,22 @@ describe("buildPathView", () => {
     const view = buildPathView({
       plan,
       days,
-      submissions: [{ day_id: "zzz", submitted_at: day(1).toISOString() }],
+      submissions: [{ day_id: "zzz", submitted_at: day(1).toISOString(), status: "scored" }],
       enrollment: { start_date: day(1), unlock_mode: "completion" },
       today: day(1),
     });
     expect(view[0].status).toBe("unlocked"); // day 1 still just unlocked, not completed
+  });
+
+  it("does not complete a day for a needs_revision submission", () => {
+    const view = buildPathView({
+      plan,
+      days,
+      submissions: [{ day_id: "a", submitted_at: day(1).toISOString(), status: "needs_revision" }],
+      enrollment: { start_date: day(1), unlock_mode: "completion" },
+      today: day(1),
+    });
+    expect(view[0].status).toBe("unlocked"); // retry, not completed
+    expect(view[1].status).toBe("locked"); // next stays locked
   });
 });

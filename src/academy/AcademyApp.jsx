@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase.js";
 import { signIn, signUp, signOut, getSession, onAuthChange } from "../lib/auth.js";
 import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/enrollment.js";
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
+import { submitDay } from "../lib/submit.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
@@ -204,31 +205,118 @@ function Section({ title, body }) {
   );
 }
 
+function SubmitPanel({ day, enrollmentId, onSubmitted }) {
+  const mcq = (day.checks || []).find((c) => c.type === "mcq");
+  const [answers, setAnswers] = useState({});
+  const [text, setText] = useState("");
+  const [self, setSelf] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const submit = async () => {
+    setError("");
+    if (!text.trim()) return setError("Write your assignment response first.");
+    const selfNum = self === "" ? null : Number(self);
+    if (selfNum !== null && (Number.isNaN(selfNum) || selfNum < 0 || selfNum > 100)) {
+      return setError("Self-score must be 0–100.");
+    }
+    let answersArr = [];
+    if (mcq) {
+      answersArr = mcq.items.map((_, i) => (i in answers ? answers[i] : null));
+      if (answersArr.some((a) => a === null)) return setError("Answer every question.");
+    }
+    setBusy(true);
+    try {
+      await submitDay(supabase, { enrollmentId, dayId: day.id, content: text, selfScore: selfNum, answers: answersArr });
+      onSubmitted?.();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+      {mcq && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {mcq.items.map((q, qi) => (
+            <div key={qi}>
+              <p style={{ fontSize: 14, color: "#F5F5F7", marginBottom: 6 }}>{q.q}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {q.options.map((opt, oi) => (
+                  <button
+                    key={oi}
+                    onClick={() => setAnswers({ ...answers, [qi]: oi })}
+                    style={{
+                      padding: "7px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+                      border: answers[qi] === oi ? "1px solid #A855F7" : "1px solid rgba(255,255,255,0.08)",
+                      background: answers[qi] === oi ? "rgba(168,85,247,0.1)" : "transparent", color: "#D1D5DB",
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={4}
+        placeholder="Your assignment response…"
+        style={{ ...input, resize: "vertical", marginBottom: 0 }}
+      />
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 13, color: "#9CA3AF" }}>Self-score (0–100):</span>
+        <input
+          value={self}
+          onChange={(e) => setSelf(e.target.value)}
+          type="number"
+          min="0"
+          max="100"
+          style={{ ...input, width: 90, marginBottom: 0 }}
+        />
+      </div>
+      {error && <p style={{ color: "#F87171", fontSize: 13 }}>{error}</p>}
+      <button style={{ ...primaryBtn, alignSelf: "flex-start", opacity: busy ? 0.6 : 1 }} onClick={submit} disabled={busy}>
+        {busy ? "Submitting…" : "Submit"}
+      </button>
+    </div>
+  );
+}
+
 function LessonView({ enrollment, track, onBack }) {
   const [view, setView] = useState([]);
+  const [subs, setSubs] = useState([]);
   const [selected, setSelected] = useState(null);
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  async function load() {
+    setLoading(true);
+    try {
+      const { plan, days } = await resolvePlan(supabase, enrollment);
+      const mySubs = await getMySubmissions(supabase, enrollment.id);
+      setSubs(mySubs);
+      const pv = buildPathView({ plan, days, submissions: mySubs, enrollment });
+      setView(pv);
+      const firstOpen = pv.find((d) => d.status === "unlocked");
+      const lastDone = [...pv].reverse().find((d) => d.status === "completed");
+      const target = selected ?? (firstOpen || lastDone || pv[0])?.dayIndex;
+      if (target) await openDay(target, pv);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const { plan, days } = await resolvePlan(supabase, enrollment);
-        const subs = await getMySubmissions(supabase, enrollment.id);
-        const pv = buildPathView({ plan, days, submissions: subs, enrollment });
-        setView(pv);
-        const firstOpen = pv.find((d) => d.status === "unlocked");
-        const lastDone = [...pv].reverse().find((d) => d.status === "completed");
-        const target = firstOpen || lastDone || pv[0];
-        if (target) await openDay(target.dayIndex, pv);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -301,9 +389,18 @@ function LessonView({ enrollment, track, onBack }) {
                 </ul>
               </div>
             )}
-            <p style={{ fontSize: 12, color: "#6B7280", marginTop: 14 }}>
-              Assignment submission + scoring arrives in the next phase.
-            </p>
+            {(() => {
+              const selRow = view.find((d) => d.dayIndex === selected);
+              const existing = subs.find((s) => s.day_id === content.id);
+              if (selRow && selRow.status === "completed") {
+                return (
+                  <p style={{ fontSize: 13, color: "#34D399", marginTop: 14 }}>
+                    Completed · score {existing?.score ?? "—"}
+                  </p>
+                );
+              }
+              return <SubmitPanel key={content.id} day={content} enrollmentId={enrollment.id} onSubmitted={load} />;
+            })()}
           </div>
         </div>
       )}
