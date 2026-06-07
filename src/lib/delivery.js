@@ -12,7 +12,7 @@ export async function resolvePlan(supabase, enrollment) {
 export async function getMySubmissions(supabase, enrollmentId) {
   const { data, error } = await supabase
     .from("submission")
-    .select("day_id, status, submitted_at")
+    .select("day_id, status, score, submitted_at")
     .eq("enrollment_id", enrollmentId);
   if (error) throw error;
   return data ?? [];
@@ -45,8 +45,11 @@ export function buildPathView({ plan, days, submissions, enrollment, today = new
   const numberById = new Map(days.map((d) => [d.id, d.day_number]));
   const indexByNumber = new Map(plan.dayNumbers.map((n, i) => [n, i + 1]));
 
+  // Only a PASSED submission (status 'scored') counts as completing a day and
+  // unlocking the next. 'needs_revision' lets the student retry without advancing.
   const completions = new Map();
   for (const s of submissions) {
+    if (s.status !== "scored") continue;
     const num = numberById.get(s.day_id);
     const idx = num != null ? indexByNumber.get(num) : undefined;
     if (idx) completions.set(idx, new Date(s.submitted_at));
