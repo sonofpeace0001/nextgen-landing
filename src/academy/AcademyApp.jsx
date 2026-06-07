@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { signIn, signUp, signOut, getSession, onAuthChange } from "../lib/auth.js";
 import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/enrollment.js";
+import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
@@ -179,10 +180,142 @@ function EnrollCard({ onEnrolled }) {
   );
 }
 
+const lessonPre = {
+  whiteSpace: "pre-wrap",
+  fontFamily: "inherit",
+  fontSize: 14,
+  lineHeight: 1.6,
+  color: "#D1D5DB",
+  margin: "10px 0 0",
+};
+
+function statusPill(status) {
+  if (status === "completed") return { label: "Done", color: "#34D399", bd: "rgba(52,211,153,0.35)" };
+  if (status === "unlocked") return { label: "Open", color: "#A855F7", bd: "rgba(168,85,247,0.4)" };
+  return { label: "Locked", color: "#6B7280", bd: "rgba(255,255,255,0.08)" };
+}
+
+function Section({ title, body }) {
+  return (
+    <div style={card}>
+      <span style={label}>{title}</span>
+      <p style={{ fontSize: 15, color: "#F5F5F7", lineHeight: 1.6, margin: "10px 0 0" }}>{body}</p>
+    </div>
+  );
+}
+
+function LessonView({ enrollment, track, onBack }) {
+  const [view, setView] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const { plan, days } = await resolvePlan(supabase, enrollment);
+        const subs = await getMySubmissions(supabase, enrollment.id);
+        const pv = buildPathView({ plan, days, submissions: subs, enrollment });
+        setView(pv);
+        const firstOpen = pv.find((d) => d.status === "unlocked");
+        const lastDone = [...pv].reverse().find((d) => d.status === "completed");
+        const target = firstOpen || lastDone || pv[0];
+        if (target) await openDay(target.dayIndex, pv);
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function openDay(dayIndex, pv = view) {
+    const row = pv.find((d) => d.dayIndex === dayIndex);
+    if (!row || row.status === "locked") return;
+    setSelected(dayIndex);
+    setContent(await getDayByNumber(supabase, enrollment.track_id, row.dayNumber));
+  }
+
+  return (
+    <div style={{ width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 18 }}>
+      <button style={{ ...ghostBtn, alignSelf: "flex-start", padding: "7px 14px", fontSize: 13 }} onClick={onBack}>
+        ← Back
+      </button>
+      <div>
+        <span style={label}>{track?.title ?? "Track"}</span>
+        <h2 style={{ fontSize: 22, fontWeight: 600, margin: "8px 0 0", letterSpacing: "-0.02em" }}>
+          {selected ? `Day ${selected} of ${enrollment.total_days}` : "Your path"}
+        </h2>
+      </div>
+
+      {error && <p style={{ color: "#F87171", fontSize: 13 }}>{error}</p>}
+      {loading && <p style={{ color: "#6B7280", fontSize: 14 }}>Loading…</p>}
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {view.map((d) => {
+          const p = statusPill(d.status);
+          const isSel = d.dayIndex === selected;
+          return (
+            <button
+              key={d.dayIndex}
+              onClick={() => openDay(d.dayIndex)}
+              disabled={d.status === "locked"}
+              title={`Day ${d.dayIndex} · ${p.label}`}
+              style={{
+                width: 34, height: 34, borderRadius: 8, fontSize: 12, fontFamily: "inherit",
+                cursor: d.status === "locked" ? "not-allowed" : "pointer",
+                border: isSel ? "1px solid #A855F7" : `1px solid ${p.bd}`,
+                background: isSel ? "rgba(168,85,247,0.12)" : "transparent",
+                color: p.color, opacity: d.status === "locked" ? 0.5 : 1,
+              }}
+            >
+              {d.dayIndex}
+            </button>
+          );
+        })}
+      </div>
+
+      {content && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <Section title="What to learn" body={content.objective} />
+          <div style={card}>
+            <span style={label}>Lesson</span>
+            <pre style={lessonPre}>{content.lesson_md}</pre>
+          </div>
+          <Section title="What to improve" body={content.skill_focus} />
+          <div style={card}>
+            <span style={label}>Assignment</span>
+            <pre style={lessonPre}>{content.assignment_md}</pre>
+            {Array.isArray(content.rubric) && content.rubric.length > 0 && (
+              <div style={{ marginTop: 14 }}>
+                <span style={label}>Rubric</span>
+                <ul style={{ margin: "8px 0 0", paddingLeft: 18, color: "#9CA3AF", fontSize: 13, lineHeight: 1.7 }}>
+                  {content.rubric.map((r, i) => (
+                    <li key={i}>
+                      {r.criterion} <span style={{ color: "#6B7280" }}>({r.max_points} pts)</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <p style={{ fontSize: 12, color: "#6B7280", marginTop: 14 }}>
+              Assignment submission + scoring arrives in the next phase.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Dashboard({ session }) {
   const [enrollments, setEnrollments] = useState([]);
   const [tracks, setTracks] = useState({});
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -192,6 +325,14 @@ function Dashboard({ session }) {
     setLoading(false);
   };
   useEffect(() => { refresh(); }, []);
+
+  if (open) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+        <LessonView enrollment={open} track={tracks[open.track_id]} onBack={() => { setOpen(null); refresh(); }} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", gap: 20 }}>
@@ -205,12 +346,16 @@ function Dashboard({ session }) {
           <span style={label}>Your paths</span>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
             {enrollments.map((e) => (
-              <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", border: BORDER, borderRadius: 10 }}>
+              <div
+                key={e.id}
+                onClick={() => setOpen(e)}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", border: BORDER, borderRadius: 10, cursor: "pointer" }}
+              >
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 600 }}>{tracks[e.track_id]?.title ?? "Track"}</div>
                   <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 3, textTransform: "capitalize" }}>{e.entry_level} · {e.status}</div>
                 </div>
-                <div style={{ fontSize: 13, color: "#A855F7", fontWeight: 600 }}>Day {e.current_day} of {e.total_days}</div>
+                <div style={{ fontSize: 13, color: "#A855F7", fontWeight: 600 }}>Day {e.current_day} of {e.total_days} →</div>
               </div>
             ))}
           </div>
