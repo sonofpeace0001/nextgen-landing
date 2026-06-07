@@ -4,6 +4,7 @@ import { signIn, signUp, signOut, getSession, onAuthChange } from "../lib/auth.j
 import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/enrollment.js";
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
 import { submitDay } from "../lib/submit.js";
+import { currentStreak, tierName, getProgress } from "../lib/progress.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
@@ -205,6 +206,15 @@ function Section({ title, body }) {
   );
 }
 
+function Stat({ label: lbl, value }) {
+  return (
+    <div>
+      <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6B7280" }}>{lbl}</div>
+      <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F7", marginTop: 3 }}>{value}</div>
+    </div>
+  );
+}
+
 function SubmitPanel({ day, enrollmentId, onSubmitted }) {
   const mcq = (day.checks || []).find((c) => c.type === "mcq");
   const [answers, setAnswers] = useState({});
@@ -291,6 +301,7 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
 function LessonView({ enrollment, track, onBack }) {
   const [view, setView] = useState([]);
   const [subs, setSubs] = useState([]);
+  const [progress, setProgress] = useState(null);
   const [selected, setSelected] = useState(null);
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -304,6 +315,9 @@ function LessonView({ enrollment, track, onBack }) {
       setSubs(mySubs);
       const pv = buildPathView({ plan, days, submissions: mySubs, enrollment });
       setView(pv);
+      const prog = await getProgress(supabase, enrollment.id);
+      const scoredDates = mySubs.filter((s) => s.status === "scored").map((s) => new Date(s.submitted_at));
+      setProgress(prog ? { ...prog, streak: currentStreak(scoredDates) } : null);
       const firstOpen = pv.find((d) => d.status === "unlocked");
       const lastDone = [...pv].reverse().find((d) => d.status === "completed");
       const target = selected ?? (firstOpen || lastDone || pv[0])?.dayIndex;
@@ -338,6 +352,15 @@ function LessonView({ enrollment, track, onBack }) {
           {selected ? `Day ${selected} of ${enrollment.total_days}` : "Your path"}
         </h2>
       </div>
+
+      {progress && (
+        <div style={{ display: "flex", gap: 22, flexWrap: "wrap", padding: "14px 18px", border: BORDER, borderRadius: 12 }}>
+          <Stat label="Progress" value={`Day ${progress.current_day} / ${progress.total_days}`} />
+          <Stat label="Tier" value={tierName(progress.tier_reached || 1)} />
+          <Stat label="Score" value={`${progress.cumulative_score ?? 0} pts`} />
+          <Stat label="Streak" value={`${progress.streak} day${progress.streak === 1 ? "" : "s"}`} />
+        </div>
+      )}
 
       {error && <p style={{ color: "#F87171", fontSize: 13 }}>{error}</p>}
       {loading && <p style={{ color: "#6B7280", fontSize: 14 }}>Loading…</p>}
