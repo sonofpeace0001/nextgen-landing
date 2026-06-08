@@ -12,7 +12,7 @@ const VIOLET = "#7C3AED";
 const CORAL = "#EB97A0";
 const TEXT = "#ECE8F5";
 const MUTED = "#9B8FC0";
-const TERT = "#6E6690";
+const TERT = "#8A81A6";
 const HAIR = "1px solid rgba(255,255,255,0.08)";
 const SURFACE = "rgba(255,255,255,0.025)";
 const H1_GRADIENT = "linear-gradient(105deg, #7C3AED 0%, #7C3AED 46%, #EB97A0 100%)";
@@ -291,7 +291,7 @@ function Hero() {
           transition: `opacity .55s ease ${d}ms, transform .55s ease ${d}ms`,
         };
   return (
-    <header style={{ position: "relative", overflow: "hidden", paddingTop: 150, paddingBottom: 110 }}>
+    <header className="ng-hero" style={{ position: "relative", overflow: "hidden", paddingTop: 150, paddingBottom: 110 }}>
       {/* single soft lavender glow, top-left, hero only */}
       <div
         aria-hidden="true"
@@ -349,6 +349,7 @@ function Section({ id, alt, children, style }) {
   return (
     <section
       id={id}
+      className="ng-section"
       style={{
         padding: "104px 0",
         background: alt ? SURFACE : "transparent",
@@ -599,7 +600,6 @@ export default function Landing() {
       id="top"
       style={{
         background: "linear-gradient(180deg, #120A24 0%, #0B0612 100%)",
-        backgroundAttachment: "fixed",
         minHeight: "100vh",
         color: TEXT,
         fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
@@ -607,7 +607,6 @@ export default function Landing() {
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a:hover{color:#ECE8F5}
@@ -617,7 +616,9 @@ export default function Landing() {
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-grid-4{grid-template-columns:1fr !important}
           .ng-loop-cell{border-left:none !important;border-top:1px solid rgba(255,255,255,0.08);padding:24px 0 !important}
-          .ng-plan-head,.ng-plan-row{grid-template-columns:1fr 64px 64px !important}
+          .ng-plan-head,.ng-plan-row{grid-template-columns:1fr 56px 56px !important}
+          .ng-section{padding:68px 0 !important}
+          .ng-hero{padding-top:118px !important;padding-bottom:72px !important}
         }
         @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
       `}</style>
