@@ -37,6 +37,7 @@ suite("redeem_code + is_elite guard", () => {
     codes.revoked = await ins({ code: `revoked_${stamp}`, revoked: true });
     codes.expired = await ins({ code: `expired_${stamp}`, expires_at: new Date(Date.now() - 86400000).toISOString() });
     codes.full = await ins({ code: `full_${stamp}`, max_uses: 1, used_count: 1 });
+    codes.multi = await ins({ code: `multi_${stamp}`, max_uses: 2 });
   });
 
   afterAll(async () => {
@@ -52,9 +53,11 @@ suite("redeem_code + is_elite guard", () => {
     expect(await isElite(A.id)).toBe(true);
   });
 
-  it("the same user cannot redeem the same code twice", async () => {
-    const { error } = await cA.rpc("redeem_code", { p_code: `valid_${stamp}` });
-    expect(error?.message).toMatch(/already redeemed/i);
+  it("the same user cannot redeem the same code twice (multi-use code)", async () => {
+    const first = await cA.rpc("redeem_code", { p_code: `multi_${stamp}` });
+    expect(first.error).toBeFalsy();
+    const second = await cA.rpc("redeem_code", { p_code: `multi_${stamp}` });
+    expect(second.error?.message).toMatch(/already redeemed/i);
   });
 
   it("rejects an invalid code", async () => {
