@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import NextgenLanding from "./NextgenLanding.jsx";
+import Landing from "./Landing.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import "./index.css";
 
@@ -13,7 +13,7 @@ function Root() {
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
-  return hash.startsWith("#/learn") ? <AcademyApp /> : <NextgenLanding />;
+  return hash.startsWith("#/learn") ? <AcademyApp /> : <Landing />;
 }
 
 createRoot(document.getElementById("root")).render(
