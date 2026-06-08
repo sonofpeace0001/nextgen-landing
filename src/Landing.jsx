@@ -54,9 +54,7 @@ const COMPARISON_ROWS = [
   { label: "Increased visibility for your personal brand", free: false },
 ];
 
-// TODO-1: real testimonials/stats from client. Section renders only when populated —
-// nothing is fabricated. Shape: { quote, name, role }.
-const TESTIMONIALS = [];
+const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
 const NAV_LINKS = [
   { label: "Freelancing", href: "#tracks" },
@@ -464,25 +462,73 @@ function HowItWorks() {
   );
 }
 
-function Testimonials() {
-  if (!TESTIMONIALS.length) return null; // TODO-1: nothing rendered until real testimonials exist
+// Social proof: exactly two real figures, stated separately (never summed).
+// Primary "400+ builders" lives here next to the Join CTA; secondary "500+ on X"
+// is in the footer. No other stats, percentages, earnings, or counters.
+function Community() {
   return (
-    <Section id="proof">
+    <Section id="community">
       <FadeUp>
-        <p style={{ ...eyebrow, marginBottom: 14 }}>Builders</p>
-        <h2 style={{ ...h2, marginBottom: 48 }}>What members say.</h2>
+        <p style={{ ...eyebrow, marginBottom: 40 }}>Community</p>
       </FadeUp>
-      <div className="ng-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
-        {TESTIMONIALS.map((t, i) => (
-          <FadeUp key={i} delay={i * 70}>
-            <figure style={{ border: HAIR, borderRadius: 14, padding: 26, margin: 0 }}>
-              <blockquote style={{ ...body, color: TEXT, margin: "0 0 18px" }}>“{t.quote}”</blockquote>
-              <figcaption style={{ fontSize: 14, color: MUTED }}>
-                <span style={{ color: TEXT, fontWeight: 600 }}>{t.name}</span> · {t.role}
-              </figcaption>
-            </figure>
-          </FadeUp>
-        ))}
+      <div className="ng-grid-2" style={{ display: "grid", gridTemplateColumns: "300px 1fr", gap: 56, alignItems: "center" }}>
+        <FadeUp>
+          <div style={{ width: "100%", maxWidth: 300, border: HAIR, borderRadius: 14, overflow: "hidden", background: "#000" }}>
+            <img
+              src="/founder.jpg"
+              alt="SON OF PEACE, founder of NEXTGEN"
+              width="720"
+              height="720"
+              loading="lazy"
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
+          </div>
+        </FadeUp>
+        <FadeUp delay={80}>
+          <div style={{ marginBottom: 26 }}>
+            <span
+              style={{
+                fontFamily: "'Space Grotesk','Inter',sans-serif",
+                fontSize: 48,
+                fontWeight: 600,
+                color: VIOLET,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              400+
+            </span>
+            <span style={{ fontSize: 17, color: TEXT, marginLeft: 12 }}>builders in the community</span>
+          </div>
+          <p style={{ ...eyebrow, marginBottom: 8 }}>Founder</p>
+          <h3
+            style={{
+              fontFamily: "'Space Grotesk','Inter',sans-serif",
+              fontSize: 26,
+              fontWeight: 600,
+              color: TEXT,
+              margin: "0 0 14px",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            SON OF PEACE
+          </h3>
+          <p style={{ ...body, color: MUTED, maxWidth: 480, marginBottom: 24 }}>
+            SON OF PEACE started NEXTGEN to give people a real path into the new tech economy — not more theory, but
+            skills, a community, and opportunities you can actually act on.
+          </p>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+            <PrimaryButton onClick={openDiscord}>Join the community</PrimaryButton>
+            <a
+              href={FOUNDER_X_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, color: MUTED, fontSize: 14, textDecoration: "none" }}
+            >
+              <XIcon size={14} />
+              @sonofpeace0001
+            </a>
+          </div>
+        </FadeUp>
       </div>
     </Section>
   );
@@ -571,6 +617,9 @@ function Footer() {
               <DiscordIcon />
             </a>
           </div>
+          <p style={{ fontSize: 13, color: TERT, marginTop: 14 }}>
+            <span style={{ color: TEXT, fontWeight: 600 }}>500+</span> following on X
+          </p>
         </div>
         <div style={{ display: "flex", gap: 56, flexWrap: "wrap" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -613,6 +662,7 @@ export default function Landing() {
         @media (max-width:820px){
           .ng-navlinks{display:none !important}
           .ng-burger{display:block !important}
+          .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-grid-4{grid-template-columns:1fr !important}
           .ng-loop-cell{border-left:none !important;border-top:1px solid rgba(255,255,255,0.08);padding:24px 0 !important}
@@ -626,7 +676,7 @@ export default function Landing() {
       <Hero />
       <Tracks />
       <HowItWorks />
-      <Testimonials />
+      <Community />
       <Plans />
       <Footer />
     </div>
