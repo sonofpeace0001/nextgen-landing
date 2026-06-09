@@ -62,6 +62,8 @@ suite("enrollment + path generation", () => {
     const u = await admin.auth.admin.createUser({ email, password: PW, email_confirm: true });
     if (u.error) throw u.error;
     user = u.data.user;
+    // Intermediate now requires Elite (DB gate); grant it for this test's user.
+    await admin.from("profile").update({ is_elite: true }).eq("id", user.id);
 
     userClient = createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const si = await userClient.auth.signInWithPassword({ email, password: PW });

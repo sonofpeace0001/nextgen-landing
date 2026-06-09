@@ -71,4 +71,16 @@ describe("buildPathView", () => {
     expect(view[0].status).toBe("unlocked"); // retry, not completed
     expect(view[1].status).toBe("locked"); // next stays locked
   });
+
+  it("treats a pending_review submission as completed (non-blocking)", () => {
+    const view = buildPathView({
+      plan,
+      days,
+      submissions: [{ day_id: "a", submitted_at: day(1).toISOString(), status: "pending_review" }],
+      enrollment: { start_date: day(1), unlock_mode: "completion" },
+      today: day(1),
+    });
+    expect(view[0].status).toBe("completed"); // counts as submitted
+    expect(view[1].status).toBe("unlocked"); // next opens while review is pending
+  });
 });
