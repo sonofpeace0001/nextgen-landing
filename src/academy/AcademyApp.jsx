@@ -5,6 +5,8 @@ import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
 import { submitDay } from "../lib/submit.js";
 import { currentStreak, tierName, getProgress } from "../lib/progress.js";
+import { getMyProfile, redeemCode, trackTierAvailability } from "../lib/profile.js";
+import { levelState } from "../lib/levels.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
@@ -112,13 +114,27 @@ function EnrollCard({ onEnrolled }) {
   const [level, setLevel] = useState("novice");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [isElite, setIsElite] = useState(false);
+  const [tierHasDays, setTierHasDays] = useState({});
+  const [code, setCode] = useState("");
+  const [redeemBusy, setRedeemBusy] = useState(false);
+  const [redeemMsg, setRedeemMsg] = useState(null); // { ok, text }
 
   useEffect(() => {
     listPublishedTracks(supabase).then((t) => {
       setTracks(t);
       if (t[0]) setTrackId(t[0].id);
     }).catch((e) => setError(e.message));
+    getMyProfile(supabase).then((p) => setIsElite(!!p?.is_elite)).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!trackId) return;
+    trackTierAvailability(supabase, trackId).then(setTierHasDays).catch(() => setTierHasDays({}));
+  }, [trackId]);
+
+  const stateFor = (lvl) => levelState({ entryLevel: lvl, isElite, tierHasDays });
+  const selState = trackId ? stateFor(level) : "coming_soon";
 
   const enroll = async () => {
     setError("");
@@ -132,6 +148,29 @@ function EnrollCard({ onEnrolled }) {
       setBusy(false);
     }
   };
+
+  const redeem = async () => {
+    setRedeemMsg(null);
+    setRedeemBusy(true);
+    try {
+      await redeemCode(supabase, code.trim());
+      setIsElite(true);
+      setCode("");
+      setRedeemMsg({ ok: true, text: "Elite unlocked." });
+    } catch (e) {
+      setRedeemMsg({ ok: false, text: e.message || "Could not redeem that code." });
+    } finally {
+      setRedeemBusy(false);
+    }
+  };
+
+  const enrollLabel = busy
+    ? "Enrolling…"
+    : selState === "enrollable"
+    ? "Enroll"
+    : selState === "requires_elite"
+    ? "Redeem a code to unlock"
+    : "Coming soon";
 
   return (
     <div style={card}>
@@ -156,27 +195,69 @@ function EnrollCard({ onEnrolled }) {
         {tracks.length === 0 && <p style={{ fontSize: 13, color: "#6B7280" }}>No published tracks yet.</p>}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>
-        {LEVELS.map((l) => (
-          <button
-            key={l.key}
-            onClick={() => setLevel(l.key)}
-            style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
-              padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
-              border: level === l.key ? "1px solid #A855F7" : BORDER,
-              background: level === l.key ? "rgba(168,85,247,0.08)" : "transparent", color: "#F5F5F7",
-            }}
-          >
-            <span style={{ fontSize: 14, fontWeight: 600 }}>{l.label}</span>
-            <span style={{ fontSize: 12, color: "#9CA3AF" }}>{l.hint} · {ENTRY_LEVELS[l.key].totalDays}d</span>
-          </button>
-        ))}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+        {LEVELS.map((l) => {
+          const st = stateFor(l.key);
+          const badge = st === "requires_elite" ? "Requires Elite" : st === "coming_soon" ? "Coming soon" : null;
+          const badgeColor = st === "requires_elite" ? "#EB97A0" : "#6B7280";
+          return (
+            <button
+              key={l.key}
+              onClick={() => setLevel(l.key)}
+              style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
+                padding: "12px 16px", borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
+                border: level === l.key ? "1px solid #A855F7" : BORDER,
+                background: level === l.key ? "rgba(168,85,247,0.08)" : "transparent",
+                color: "#F5F5F7", opacity: st === "coming_soon" ? 0.6 : 1,
+              }}
+            >
+              <span style={{ fontSize: 14, fontWeight: 600 }}>
+                {l.label} <span style={{ color: "#6B7280", fontWeight: 400 }}>· {ENTRY_LEVELS[l.key].totalDays}d</span>
+              </span>
+              {badge ? (
+                <span style={{ fontSize: 12, fontWeight: 600, color: badgeColor }}>{badge}</span>
+              ) : (
+                <span style={{ fontSize: 12, color: "#9CA3AF" }}>{l.hint}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
+      {selState === "requires_elite" && (
+        <div style={{ marginBottom: 18 }}>
+          <p style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 8 }}>
+            Intermediate and Advanced are Elite paths. Have a code?
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Elite code"
+              style={{ ...input, marginBottom: 0 }}
+            />
+            <button
+              style={{ ...primaryBtn, opacity: redeemBusy || !code.trim() ? 0.6 : 1 }}
+              onClick={redeem}
+              disabled={redeemBusy || !code.trim()}
+            >
+              {redeemBusy ? "…" : "Redeem"}
+            </button>
+          </div>
+          {redeemMsg && (
+            <p style={{ fontSize: 13, color: redeemMsg.ok ? "#34D399" : "#F87171", marginTop: 8 }}>{redeemMsg.text}</p>
+          )}
+        </div>
+      )}
+
       {error && <p style={{ color: "#F87171", fontSize: 13, marginBottom: 12 }}>{error}</p>}
-      <button style={{ ...primaryBtn, width: "100%", opacity: busy || !trackId ? 0.6 : 1 }} onClick={enroll} disabled={busy || !trackId}>
-        {busy ? "Enrolling…" : "Enroll"}
+      <button
+        style={{ ...primaryBtn, width: "100%", opacity: busy || selState !== "enrollable" ? 0.6 : 1 }}
+        onClick={enroll}
+        disabled={busy || selState !== "enrollable"}
+      >
+        {enrollLabel}
       </button>
     </div>
   );
