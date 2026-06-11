@@ -112,7 +112,7 @@ function ContentTab() {
   const [tiers, setTiers] = useState([]);
   const [days, setDays] = useState([]);
   const [err, setErr] = useState("");
-  const blank = { day_number: "", objective: "", lesson_md: "", skill_focus: "", assignment_md: "", rubric: "[]", requires_review: false, est_minutes: "" };
+  const blank = { day_number: "", title: "", objective: "", lesson_md: "", skill_focus: "", assignment_md: "", rubric: "[]", requires_review: false, est_minutes: "" };
   const [form, setForm] = useState(blank);
 
   useEffect(() => { if (tracks?.[0] && !trackId) setTrackId(tracks[0].id); }, [tracks, trackId]);
@@ -131,7 +131,8 @@ function ContentTab() {
     const day = {
       ...(form.id ? { id: form.id } : {}),
       track_id: trackId, tier_id: tierId,
-      day_number: Number(form.day_number), objective: form.objective, lesson_md: form.lesson_md,
+      day_number: Number(form.day_number), title: form.title || null,
+      objective: form.objective, lesson_md: form.lesson_md,
       skill_focus: form.skill_focus, assignment_md: form.assignment_md, rubric,
       requires_review: !!form.requires_review, est_minutes: form.est_minutes ? Number(form.est_minutes) : null,
     };
@@ -157,7 +158,7 @@ function ContentTab() {
         {days.map((d) => (
           <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <span style={{ fontSize: 13, cursor: "pointer", color: d.is_published ? "#F5F5F7" : "#9CA3AF" }} onClick={() => edit(d)}>
-              Day {d.day_number} · {d.objective?.slice(0, 36)}{d.requires_review ? " · review" : ""}
+              Day {d.day_number} · {(d.title || d.objective || "untitled").slice(0, 36)}{d.requires_review ? " · review" : ""}
             </span>
             <button style={{ ...ghost, padding: "4px 9px", fontSize: 12, color: d.is_published ? "#34D399" : "#9CA3AF" }} onClick={() => togglePublish(d)}>{d.is_published ? "Published" : "Publish"}</button>
           </div>
@@ -168,6 +169,7 @@ function ContentTab() {
       <div style={card}>
         <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{form.id ? `Edit day ${form.day_number}` : "New day"}</p>
         {F("day_number", "Day number")}
+        {F("title", "Title")}
         {F("objective", "Objective (what to learn)")}
         {F("lesson_md", "Lesson", true)}
         {F("skill_focus", "Skill focus (what to improve)")}
