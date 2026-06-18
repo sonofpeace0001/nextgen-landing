@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import Landing from "./Landing.jsx";
+import Landing from "./landing/index.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
 import "./index.css";
