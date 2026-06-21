@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { SplineScene } from "./components/SplineScene";
 import { PricingTable } from "./components/ui/pricing-table";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -608,6 +609,63 @@ function Plans() {
   );
 }
 
+const FAQ_ITEMS = [
+  {
+    q: "What is NEXTGEN?",
+    a: "NEXTGEN is a beginner-friendly community for learning AI by doing. You start from zero, work through one focused lesson and a real assignment each day, and grow alongside people doing the same. The whole point is getting you real wins with AI.",
+  },
+  {
+    q: "Do I need experience?",
+    a: "No. NEXTGEN is built for people starting from zero. The path begins with your first prompt and builds up one step at a time, so you are never expected to already know things. It is a place where it is safe to not know things yet.",
+  },
+  {
+    q: "Is it free?",
+    a: "Yes. You can join and learn for free. The core path, the community, and the daily challenges are open to everyone at no cost.",
+  },
+  {
+    q: "What is Elite?",
+    a: "Elite is the deeper tier of NEXTGEN. It adds structured roadmaps, early access to programs and tools, direct guidance, priority for paid roles and leadership, Elite-only channels, and more visibility for your work.",
+  },
+  {
+    q: "Can I pay for Elite?",
+    a: "No. Elite is not a paid subscription and you cannot buy your way in. It is earned through contribution: showing up, doing the work, and helping the community.",
+  },
+  {
+    q: "Can Elite be lost?",
+    a: "Yes. Elite reflects ongoing contribution, so you keep it by staying active. If you step away and stop contributing, it can be lost, and you can earn it back the same way you earned it.",
+  },
+  {
+    q: "Can I get a job or earn from this?",
+    a: "NEXTGEN points you toward real opportunities, including paid roles and projects, and Elite members get priority for them. The skills you build are the kind people pay for. The work and the results are still up to you.",
+  },
+  {
+    q: "How do I get started?",
+    a: "Join free and start the path from day one. Pick your level, open the first lesson, and do that day's assignment. From there it is one focused day at a time.",
+  },
+];
+
+function Faq() {
+  return (
+    <Section id="faq">
+      <FadeUp>
+        <h2 style={{ ...h2, marginBottom: 28 }}>Questions</h2>
+      </FadeUp>
+      <FadeUp delay={70}>
+        <div style={{ maxWidth: 760, borderTop: HAIR }}>
+          <Accordion type="single" collapsible defaultValue="item-0">
+            {FAQ_ITEMS.map((item, i) => (
+              <AccordionItem key={item.q} value={`item-${i}`}>
+                <AccordionTrigger>{item.q}</AccordionTrigger>
+                <AccordionContent>{item.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </FadeUp>
+    </Section>
+  );
+}
+
 function Footer() {
   return (
     <footer style={{ borderTop: HAIR, padding: "52px 0" }}>
@@ -692,6 +750,7 @@ export default function Landing() {
       <HowItWorks />
       <Community />
       <Plans />
+      <Faq />
       <Footer />
     </div>
   );
