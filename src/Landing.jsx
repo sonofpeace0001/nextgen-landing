@@ -4,6 +4,7 @@ import { PricingTable } from "./components/ui/pricing-table";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
 import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
+import { WhatYouGet } from "./components/ui/what-you-get";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -597,6 +598,7 @@ export default function Landing() {
       `}</style>
       <Navbar />
       <Hero />
+      <WhatYouGet />
       <Tracks />
       <HowItWorks />
       <Community />
