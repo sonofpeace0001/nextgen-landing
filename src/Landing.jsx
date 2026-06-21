@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Check, Menu, X } from "lucide-react";
+import { SplineScene } from "./components/SplineScene";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -21,17 +22,20 @@ const X_URL = "https://x.com/G_NEXTGEN";
 const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
 const LEARN = "#/learn";
 
-const TRACKS = [
-  { name: "Freelancing", blurb: "Turn a skill into paid client work, then scale it into a business." },
-  { name: "Web3", blurb: "From wallets and self-custody to building and earning on-chain." },
-  { name: "AI", blurb: "Every practical AI skill — from your first prompt to shipping agents and selling the work." },
+// Spline hero scene. Replace the placeholder with a real scene URL to enable the
+// 3D visual on desktop. While the placeholder is present, the static fallback
+// renders instead, so the build never depends on a live scene.
+const SCENE_URL = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
+const HAS_REAL_SCENE = SCENE_URL !== "PASTE_YOUR_SPLINE_SCENE_URL_HERE";
+
+// One focus: AI. Three entry points by experience, each running the full ladder
+// from Basic to Grandmaster.
+const AI_PATHS = [
+  { name: "Novice", blurb: "New to AI. Start from your first prompt and build real skills from zero.", days: 90 },
+  { name: "Intermediate", blurb: "You know the basics. Go deeper into real AI work you can show.", days: 60 },
+  { name: "Advanced", blurb: "Already working with AI. Push to expert and Grandmaster level.", days: 30 },
 ];
 const TIERS = ["Basic", "Pro", "Expert", "Grandmaster"];
-const LEVELS = [
-  { name: "Novice", days: 90 },
-  { name: "Intermediate", days: 60 },
-  { name: "Advanced", days: 30 },
-];
 
 const LOOP_STEPS = [
   { n: "01", title: "Learn", desc: "Each day opens with one clear objective and a focused lesson — what to learn today, no filler." },
@@ -43,7 +47,7 @@ const LOOP_STEPS = [
 const COMPARISON_ROWS = [
   { label: "Learning paths for in-demand skills", free: true },
   { label: "A community of builders", free: true },
-  { label: "Access to opportunities (jobs, gigs)", free: true },
+  { label: "Access to opportunities (jobs, paid projects)", free: true },
   { label: "Start from zero, no experience needed", free: true },
   { label: "Advanced structured roadmaps", free: false },
   { label: "Exclusive and early-access opportunities", free: false },
@@ -57,9 +61,8 @@ const COMPARISON_ROWS = [
 const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
 const NAV_LINKS = [
-  { label: "Freelancing", href: "#tracks" },
-  { label: "Web3", href: "#tracks" },
-  { label: "AI", href: "#tracks" },
+  { label: "How it works", href: "#how" },
+  { label: "Paths", href: "#tracks" },
   { label: "Plans", href: "#plans" },
 ];
 
@@ -76,6 +79,71 @@ function useScrolled(threshold = 32) {
     return () => window.removeEventListener("scroll", h);
   }, [threshold]);
   return s;
+}
+
+// True only at the lg breakpoint and up. Used to keep the Spline runtime off
+// mobile entirely — the component never mounts below this width, so no 3D
+// payload loads on small screens.
+function useIsDesktop() {
+  const query = "(min-width: 1024px)";
+  const [desktop, setDesktop] = useState(
+    typeof window !== "undefined" && window.matchMedia ? window.matchMedia(query).matches : false
+  );
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia(query);
+    const h = (e) => setDesktop(e.matches);
+    mq.addEventListener ? mq.addEventListener("change", h) : mq.addListener(h);
+    return () => (mq.removeEventListener ? mq.removeEventListener("change", h) : mq.removeListener(h));
+  }, []);
+  return desktop;
+}
+
+// Lightweight static visual for mobile, reduced-motion, and the
+// placeholder-scene case. Reuses the single brand accent gradient only — no new
+// color, no glow, no shadow, no second gradient.
+function HeroStaticVisual() {
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        width: "100%",
+        height: "100%",
+        minHeight: 280,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          width: "min(360px, 78%)",
+          aspectRatio: "1 / 1",
+          borderRadius: "50%",
+          background: H1_GRADIENT,
+          opacity: 0.42,
+        }}
+      />
+    </div>
+  );
+}
+
+// Decides what the hero's secondary slot shows. Spline mounts only on desktop,
+// only with a real scene URL, and only when reduced motion is off. Everything
+// else falls back to the static visual. Kept at lower visual weight so the
+// headline still wins the squint test.
+function HeroVisual() {
+  const isDesktop = useIsDesktop();
+  const useSpline = isDesktop && HAS_REAL_SCENE && !prefersReducedMotion;
+  return (
+    <div
+      className="ng-hero-visual"
+      style={{ position: "relative", width: "100%", height: 540, minHeight: 540, opacity: 0.95 }}
+    >
+      {useSpline ? <SplineScene scene={SCENE_URL} className="ng-spline" /> : <HeroStaticVisual />}
+    </div>
+  );
 }
 
 function FadeUp({ children, delay = 0, as: Tag = "div", style }) {
@@ -304,38 +372,46 @@ function Hero() {
         }}
       />
       <div style={{ ...container, position: "relative" }}>
-        <div style={{ maxWidth: 760 }}>
-          <p style={{ ...eyebrow, marginBottom: 26, ...item(0) }}>The future-skills community</p>
-          <h1
-            style={{
-              fontFamily: "'Space Grotesk','Inter',sans-serif",
-              fontSize: "clamp(40px,6.2vw,72px)",
-              fontWeight: 600,
-              lineHeight: 1.05,
-              letterSpacing: "-0.025em",
-              margin: "0 0 26px",
-              background: H1_GRADIENT,
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              ...item(70),
-            }}
-          >
-            Learn the skills the next economy is actually paying for.
-          </h1>
-          <p style={{ ...body, fontSize: 19, color: TEXT, maxWidth: 560, margin: "0 0 38px", ...item(140) }}>
-            NEXTGEN is where builders show up. AI, Web3, content, freelancing — practical skills with a community that is
-            doing the work alongside you.
-          </p>
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", ...item(210) }}>
-            <PrimaryButton onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
-            <a
-              href="#tracks"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8, color: TEXT, fontSize: 15, fontWeight: 500, textDecoration: "none" }}
+        <div
+          className="ng-hero-grid"
+          style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 40, alignItems: "center" }}
+        >
+          <div style={{ maxWidth: 620 }}>
+            <p style={{ ...eyebrow, marginBottom: 26, ...item(0) }}>Beginner-friendly AI community</p>
+            <h1
+              style={{
+                fontFamily: "'Space Grotesk','Inter',sans-serif",
+                fontSize: "clamp(40px,6.2vw,72px)",
+                fontWeight: 600,
+                lineHeight: 1.05,
+                letterSpacing: "-0.025em",
+                margin: "0 0 26px",
+                background: H1_GRADIENT,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                ...item(70),
+              }}
             >
-              Explore tracks
-              <span style={{ color: CORAL }}>→</span>
-            </a>
+              Get your first real wins with AI.
+            </h1>
+            <p style={{ ...body, fontSize: 19, color: TEXT, maxWidth: 560, margin: "0 0 38px", ...item(140) }}>
+              NEXTGEN is where beginners learn AI by doing. Start from zero in a place where it is safe to not know
+              things yet, and get real wins with people doing the work alongside you.
+            </p>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", ...item(210) }}>
+              <PrimaryButton onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
+              <a
+                href="#tracks"
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, color: TEXT, fontSize: 15, fontWeight: 500, textDecoration: "none" }}
+              >
+                See the paths
+                <span style={{ color: CORAL }}>→</span>
+              </a>
+            </div>
+          </div>
+          <div className="ng-hero-visual-wrap" style={{ ...item(140) }}>
+            <HeroVisual />
           </div>
         </div>
       </div>
@@ -365,15 +441,15 @@ function Tracks() {
   return (
     <Section id="tracks">
       <FadeUp>
-        <p style={{ ...eyebrow, marginBottom: 14 }}>Learning tracks</p>
-        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Three paths into the new tech economy.</h2>
+        <p style={{ ...eyebrow, marginBottom: 14 }}>Learning paths</p>
+        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Three ways into AI. Start where you are.</h2>
         <p style={{ ...body, color: MUTED, maxWidth: 560, marginBottom: 52 }}>
-          Pick a track and a level. Every track runs from Basic to Grandmaster — choose how deep you go.
+          Pick the level that fits you. Every path runs from Basic to Grandmaster, so you decide how deep you go.
         </p>
       </FadeUp>
       <div className="ng-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
-        {TRACKS.map((t, i) => (
-          <FadeUp key={t.name} delay={i * 70}>
+        {AI_PATHS.map((p, i) => (
+          <FadeUp key={p.name} delay={i * 70}>
             <div
               style={{
                 border: HAIR,
@@ -386,9 +462,9 @@ function Tracks() {
               }}
             >
               <h3 style={{ fontFamily: "'Space Grotesk','Inter',sans-serif", fontSize: 24, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
-                {t.name}
+                {p.name}
               </h3>
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: MUTED, margin: "0 0 24px", flex: 1 }}>{t.blurb}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: MUTED, margin: "0 0 24px", flex: 1 }}>{p.blurb}</p>
 
               <p style={{ ...eyebrow, fontSize: 11, marginBottom: 10 }}>Tiers</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 22 }}>
@@ -408,21 +484,17 @@ function Tracks() {
                 ))}
               </div>
 
-              <p style={{ ...eyebrow, fontSize: 11, marginBottom: 10 }}>Choose your level</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>
-                {LEVELS.map((lv) => (
-                  <div key={lv.name} style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                    <span style={{ color: MUTED }}>{lv.name}</span>
-                    <span style={{ color: TEXT, fontWeight: 600 }}>{lv.days} days</span>
-                  </div>
-                ))}
+              <p style={{ ...eyebrow, fontSize: 11, marginBottom: 10 }}>Your path</p>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 24 }}>
+                <span style={{ color: MUTED }}>Full journey</span>
+                <span style={{ color: TEXT, fontWeight: 600 }}>{p.days} days</span>
               </div>
 
               <a
                 href={LEARN}
                 style={{ display: "inline-flex", alignItems: "center", gap: 7, color: TEXT, fontSize: 14, fontWeight: 600, textDecoration: "none" }}
               >
-                Start {t.name}
+                Start {p.name}
                 <span style={{ color: CORAL }}>→</span>
               </a>
             </div>
@@ -513,8 +585,8 @@ function Community() {
             SON OF PEACE
           </h3>
           <p style={{ ...body, color: MUTED, maxWidth: 480, marginBottom: 24 }}>
-            SON OF PEACE started NEXTGEN to give people a real path into the new tech economy — not more theory, but
-            skills, a community, and opportunities you can actually act on.
+            SON OF PEACE started NEXTGEN to give people a real path into AI. Not more theory, but skills, a community,
+            and opportunities you can actually act on.
           </p>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
             <PrimaryButton onClick={openDiscord}>Join the community</PrimaryButton>
@@ -607,7 +679,7 @@ function Footer() {
         <div style={{ maxWidth: 280 }}>
           <Logo size={22} />
           <p style={{ fontSize: 14, color: TERT, lineHeight: 1.6, margin: "14px 0 16px" }}>
-            The future-skills community. Build, earn, and grow in the new tech economy.
+            The beginner-friendly AI community. Learn by doing, get real wins, and grow with people doing the work.
           </p>
           <div style={{ display: "flex", gap: 12 }}>
             <a href={X_URL} target="_blank" rel="noopener noreferrer" aria-label="NEXTGEN on X" style={{ color: MUTED }}>
@@ -624,7 +696,7 @@ function Footer() {
         <div style={{ display: "flex", gap: 56, flexWrap: "wrap" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <span style={{ ...eyebrow, fontSize: 12 }}>Learn</span>
-            <a href="#tracks" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Tracks</a>
+            <a href="#tracks" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Paths</a>
             <a href="#how" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>How it works</a>
             <a href="#plans" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Plans</a>
           </div>
@@ -659,9 +731,13 @@ export default function Landing() {
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a:hover{color:#ECE8F5}
+        .ng-spline{width:100% !important;height:100% !important;display:block !important}
+        .ng-spline canvas{width:100% !important;height:100% !important;display:block !important}
         @media (max-width:820px){
           .ng-navlinks{display:none !important}
           .ng-burger{display:block !important}
+          .ng-hero-grid{grid-template-columns:1fr !important;gap:24px !important}
+          .ng-hero-visual{height:auto !important;min-height:240px !important;opacity:0.85 !important}
           .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-grid-4{grid-template-columns:1fr !important}
