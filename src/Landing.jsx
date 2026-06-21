@@ -136,12 +136,34 @@ function HeroStaticVisual() {
 function HeroVisual() {
   const isDesktop = useIsDesktop();
   const useSpline = isDesktop && HAS_REAL_SCENE && !prefersReducedMotion;
+  const [sceneLoaded, setSceneLoaded] = useState(false);
+
+  if (!useSpline) {
+    return (
+      <div className="ng-hero-visual" style={{ position: "relative", width: "100%", height: 540, minHeight: 540, opacity: 0.95 }}>
+        <HeroStaticVisual />
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="ng-hero-visual"
-      style={{ position: "relative", width: "100%", height: 540, minHeight: 540, opacity: 0.95 }}
-    >
-      {useSpline ? <SplineScene scene={SCENE_URL} className="ng-spline" /> : <HeroStaticVisual />}
+    <div className="ng-hero-visual" style={{ position: "relative", width: "100%", height: 540, minHeight: 540, opacity: 0.95 }}>
+      {/* Branded placeholder, shown immediately while the 3D scene streams in */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: sceneLoaded ? 0 : 1,
+          transition: "opacity .6s ease",
+          pointerEvents: "none",
+        }}
+      >
+        <HeroStaticVisual />
+      </div>
+      {/* The 3D scene, cross-faded in only once it has actually loaded */}
+      <div style={{ position: "absolute", inset: 0, opacity: sceneLoaded ? 1 : 0, transition: "opacity .9s ease" }}>
+        <SplineScene scene={SCENE_URL} className="ng-spline" onLoad={() => setSceneLoaded(true)} />
+      </div>
     </div>
   );
 }
