@@ -3,6 +3,7 @@ import { SplineScene } from "./components/SplineScene";
 import { PricingTable } from "./components/ui/pricing-table";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
 import { Navbar } from "./components/ui/navbar";
+import { Footer } from "./components/ui/footer";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -15,7 +16,6 @@ const VIOLET = "#7C3AED";
 const CORAL = "#EB97A0";
 const TEXT = "#ECE8F5";
 const MUTED = "#9B8FC0";
-const TERT = "#8A81A6";
 const HAIR = "1px solid rgba(255,255,255,0.08)";
 const SURFACE = "rgba(255,255,255,0.025)";
 const H1_GRADIENT = "linear-gradient(105deg, #7C3AED 0%, #7C3AED 46%, #EB97A0 100%)";
@@ -216,25 +216,6 @@ function PrimaryButton({ children, onClick, full }) {
   );
 }
 
-function Logo({ size = 26 }) {
-  return (
-    <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <img src="/logo.png" alt="" aria-hidden="true" style={{ height: size, width: "auto", display: "block" }} />
-      <span
-        style={{
-          fontFamily: "'Space Grotesk','Inter',sans-serif",
-          fontWeight: 600,
-          fontSize: 17,
-          letterSpacing: "-0.02em",
-          color: TEXT,
-        }}
-      >
-        NEXTGEN
-      </span>
-    </span>
-  );
-}
-
 function XIcon({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -242,14 +223,6 @@ function XIcon({ size = 16 }) {
     </svg>
   );
 }
-function DiscordIcon({ size = 17 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
-    </svg>
-  );
-}
-
 function Hero() {
   const [seen, setSeen] = useState(prefersReducedMotion);
   useEffect(() => {
@@ -586,51 +559,6 @@ function Faq() {
         </div>
       </FadeUp>
     </Section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer style={{ borderTop: HAIR, padding: "52px 0" }}>
-      <div
-        style={{ ...container, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 36 }}
-      >
-        <div style={{ maxWidth: 280 }}>
-          <Logo size={22} />
-          <p style={{ fontSize: 14, color: TERT, lineHeight: 1.6, margin: "14px 0 16px" }}>
-            The beginner-friendly AI community. Learn by doing, get real wins, and grow with people doing the work.
-          </p>
-          <div style={{ display: "flex", gap: 12 }}>
-            <a href={X_URL} target="_blank" rel="noopener noreferrer" aria-label="NEXTGEN on X" style={{ color: MUTED }}>
-              <XIcon />
-            </a>
-            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" aria-label="NEXTGEN on Discord" style={{ color: MUTED }}>
-              <DiscordIcon />
-            </a>
-          </div>
-          <p style={{ fontSize: 13, color: TERT, marginTop: 14 }}>
-            <span style={{ color: TEXT, fontWeight: 600 }}>500+</span> following on X
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: 56, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ ...eyebrow, fontSize: 12 }}>Learn</span>
-            <a href="#tracks" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Paths</a>
-            <a href="#how" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>How it works</a>
-            <a href="#plans" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Plans</a>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ ...eyebrow, fontSize: 12 }}>Community</span>
-            <a href={LEARN} style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Start Learning</a>
-            <a href={X_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>X</a>
-            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Discord</a>
-          </div>
-        </div>
-      </div>
-      <div style={{ ...container, marginTop: 40 }}>
-        <p style={{ fontSize: 13, color: TERT, margin: 0 }}>© {new Date().getFullYear()} NEXTGEN. All rights reserved.</p>
-      </div>
-    </footer>
   );
 }
 
