@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Menu, X } from "lucide-react";
 import { SplineScene } from "./components/SplineScene";
 import { PricingTable } from "./components/ui/pricing-table";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
+import { Navbar } from "./components/ui/navbar";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -49,26 +49,10 @@ const LOOP_STEPS = [
 
 const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
-const NAV_LINKS = [
-  { label: "How it works", href: "#how" },
-  { label: "Paths", href: "#tracks" },
-  { label: "Plans", href: "#plans" },
-];
-
 const prefersReducedMotion =
   typeof window !== "undefined" && window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
     : false;
-
-function useScrolled(threshold = 32) {
-  const [s, setS] = useState(false);
-  useEffect(() => {
-    const h = () => setS(window.scrollY > threshold);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
-  }, [threshold]);
-  return s;
-}
 
 // True only at the lg breakpoint and up. Used to keep the Spline runtime off
 // mobile entirely — the component never mounts below this width, so no 3D
@@ -263,67 +247,6 @@ function DiscordIcon({ size = 17 }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
     </svg>
-  );
-}
-
-function Nav() {
-  const scrolled = useScrolled(32);
-  const [open, setOpen] = useState(false);
-  return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: scrolled ? "rgba(11,6,18,0.85)" : "transparent",
-        backdropFilter: scrolled ? "saturate(140%) blur(8px)" : "none",
-        borderBottom: scrolled ? HAIR : "1px solid transparent",
-        transition: "background .2s ease, border-color .2s ease",
-      }}
-    >
-      <div style={{ ...container, display: "flex", alignItems: "center", justifyContent: "space-between", height: 66 }}>
-        <a href="#top" style={{ textDecoration: "none" }}>
-          <Logo />
-        </a>
-        <div className="ng-navlinks" style={{ display: "flex", alignItems: "center", gap: 30 }}>
-          {NAV_LINKS.map((l) => (
-            <a key={l.label} href={l.href} style={{ fontSize: 15, color: MUTED, textDecoration: "none" }}>
-              {l.label}
-            </a>
-          ))}
-          <a href={LEARN} style={{ fontSize: 15, color: MUTED, textDecoration: "none" }}>
-            Login
-          </a>
-          <PrimaryButton onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
-        </div>
-        <button
-          className="ng-burger"
-          onClick={() => setOpen(!open)}
-          style={{ display: "none", background: "none", border: "none", color: TEXT, cursor: "pointer" }}
-          aria-label="Menu"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
-      {open && (
-        <div
-          className="ng-mobilemenu"
-          style={{ background: "#0E0820", borderBottom: HAIR, padding: "16px 24px 24px", display: "flex", flexDirection: "column", gap: 16 }}
-        >
-          {NAV_LINKS.map((l) => (
-            <a key={l.label} href={l.href} onClick={() => setOpen(false)} style={{ color: MUTED, fontSize: 16, textDecoration: "none" }}>
-              {l.label}
-            </a>
-          ))}
-          <a href={LEARN} onClick={() => setOpen(false)} style={{ color: MUTED, fontSize: 16, textDecoration: "none" }}>
-            Login
-          </a>
-          <PrimaryButton full onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
-        </div>
-      )}
-    </nav>
   );
 }
 
@@ -744,7 +667,7 @@ export default function Landing() {
         }
         @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
       `}</style>
-      <Nav />
+      <Navbar />
       <Hero />
       <Tracks />
       <HowItWorks />
