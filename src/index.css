@@ -1,7 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens. Dark-only for now, light-ready later: swapping these values
+   (and adding a [data-theme="light"] block) is the one-file change to light mode.
+   Never hardcode #000/#fff/purple in components — use these tokens. */
+:root {
+  --background: #0a0a0c;
+  --foreground: #f5f5f7;
+  --muted-foreground: #9ca3af;
+  --border: rgba(255, 255, 255, 0.08);
+  --primary: #a855f7; /* the single solid accent */
+  --primary-foreground: #ffffff;
+  --accent-from: #e27fe0;
+  --accent-via: #a855f7;
+  --accent-to: #7c3aed;
+}
+
 html,
 body,
 #root {
   margin: 0;
   min-height: 100%;
-  background: #0B0612;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings + eyebrow labels use Space Grotesk; headings get tight tracking. */
+h1,
+h2,
+h3,
+.eyebrow {
+  font-family: "Space Grotesk", "Inter", sans-serif;
+}
+h1,
+h2,
+h3 {
+  letter-spacing: -0.02em;
+}
+
+/* The single accent gradient, as always-available reusable classes (plain CSS,
+   not @layer, so they are never purged). .text-gradient for headlines,
+   .bg-gradient-accent for surfaces. */
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-via), var(--accent-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.bg-gradient-accent {
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-via), var(--accent-to));
 }
