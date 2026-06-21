@@ -6,28 +6,13 @@ import { Suspense, lazy } from "react";
 
 const Spline = lazy(() => import("@splinetool/react-spline"));
 
-export function SplineScene({ scene, className }) {
+export function SplineScene({ scene, className, onLoad }) {
+  // Transparent fallback: while the chunk/scene load, the caller's branded
+  // placeholder layer shows through underneath. `onLoad` lets the caller
+  // cross-fade the scene in only once it is actually ready.
   return (
-    <Suspense
-      fallback={
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {/* solid brand-violet dot — single color, no gradient/glow/shadow */}
-          <span
-            aria-hidden="true"
-            style={{ width: 10, height: 10, borderRadius: "50%", background: "#7C3AED", opacity: 0.5 }}
-          />
-        </div>
-      }
-    >
-      <Spline scene={scene} className={className} />
+    <Suspense fallback={<div style={{ width: "100%", height: "100%" }} />}>
+      <Spline scene={scene} className={className} onLoad={onLoad} />
     </Suspense>
   );
 }
