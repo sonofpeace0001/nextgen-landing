@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import Landing from "./landing/index.jsx";
+import Landing from "./Landing.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
 import "./index.css";
 
 // Lightweight hash routing (no router dep, matching the site's hash-anchor style):
-// #/learn -> the Academy learning app; everything else -> the redesigned marketing page.
+// #/learn -> the Academy learning app; everything else -> the marketing page.
 function Root() {
   const [hash, setHash] = useState(typeof window !== "undefined" ? window.location.hash : "");
   useEffect(() => {
