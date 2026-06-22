@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Menu, X } from "lucide-react";
 import { SplineScene } from "./components/SplineScene";
+import { PricingTable } from "./components/ui/pricing-table";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
+import { Navbar } from "./components/ui/navbar";
+import { Footer } from "./components/ui/footer";
+import { WhatYouGet } from "./components/ui/what-you-get";
+import { Testimonials } from "./components/ui/testimonials";
+import GeometricBackground from "./components/ui/geometric";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -13,7 +19,6 @@ const VIOLET = "#7C3AED";
 const CORAL = "#EB97A0";
 const TEXT = "#ECE8F5";
 const MUTED = "#9B8FC0";
-const TERT = "#8A81A6";
 const HAIR = "1px solid rgba(255,255,255,0.08)";
 const SURFACE = "rgba(255,255,255,0.025)";
 const H1_GRADIENT = "linear-gradient(105deg, #7C3AED 0%, #7C3AED 46%, #EB97A0 100%)";
@@ -44,61 +49,17 @@ const LOOP_STEPS = [
   { n: "04", title: "Score", desc: "Your work is scored against a clear rubric, with an auto-graded check to confirm you have it." },
 ];
 
-const COMPARISON_ROWS = [
-  { label: "Learning paths for in-demand skills", free: true },
-  { label: "A community of builders", free: true },
-  { label: "Access to opportunities (jobs, paid projects)", free: true },
-  { label: "Start from zero, no experience needed", free: true },
-  { label: "Advanced structured roadmaps", free: false },
-  { label: "Exclusive and early-access opportunities", free: false },
-  { label: "Direct mentorship and guidance", free: false },
-  { label: "Priority access to tools and resources", free: false },
-  { label: "Elite-only channels and strategy calls", free: false },
-  { label: "Priority for paid roles and ambassador slots", free: false },
-  { label: "Increased visibility for your personal brand", free: false },
-];
 
 const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
-
-const NAV_LINKS = [
-  { label: "How it works", href: "#how" },
-  { label: "Paths", href: "#tracks" },
-  { label: "Plans", href: "#plans" },
-];
 
 const prefersReducedMotion =
   typeof window !== "undefined" && window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
     : false;
 
-function useScrolled(threshold = 32) {
-  const [s, setS] = useState(false);
-  useEffect(() => {
-    const h = () => setS(window.scrollY > threshold);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
-  }, [threshold]);
-  return s;
-}
-
 // True only at the lg breakpoint and up. Used to keep the Spline runtime off
 // mobile entirely — the component never mounts below this width, so no 3D
 // payload loads on small screens.
-function useIsDesktop() {
-  const query = "(min-width: 1024px)";
-  const [desktop, setDesktop] = useState(
-    typeof window !== "undefined" && window.matchMedia ? window.matchMedia(query).matches : false
-  );
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia(query);
-    const h = (e) => setDesktop(e.matches);
-    mq.addEventListener ? mq.addEventListener("change", h) : mq.addListener(h);
-    return () => (mq.removeEventListener ? mq.removeEventListener("change", h) : mq.removeListener(h));
-  }, []);
-  return desktop;
-}
-
 // Lightweight static visual for mobile, reduced-motion, and the
 // placeholder-scene case. Reuses the single brand accent gradient only — no new
 // color, no glow, no shadow, no second gradient.
@@ -129,13 +90,13 @@ function HeroStaticVisual() {
   );
 }
 
-// Decides what the hero's secondary slot shows. Spline mounts only on desktop,
-// only with a real scene URL, and only when reduced motion is off. Everything
-// else falls back to the static visual. Kept at lower visual weight so the
-// headline still wins the squint test.
+// Decides what the hero's secondary slot shows. The 3D robot mounts on all screen
+// sizes when a real scene URL is set and reduced motion is off; otherwise it falls
+// back to the static visual. Kept at lower visual weight so the headline still
+// wins the squint test. (The ~2MB scene is lazy-loaded and cross-faded in, so text
+// paints first.)
 function HeroVisual() {
-  const isDesktop = useIsDesktop();
-  const useSpline = isDesktop && HAS_REAL_SCENE && !prefersReducedMotion;
+  const useSpline = HAS_REAL_SCENE && !prefersReducedMotion;
   const [sceneLoaded, setSceneLoaded] = useState(false);
 
   if (!useSpline) {
@@ -243,51 +204,6 @@ function PrimaryButton({ children, onClick, full }) {
   );
 }
 
-function GhostButton({ children, onClick, full }) {
-  const [h, setH] = useState(false);
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setH(true)}
-      onMouseLeave={() => setH(false)}
-      style={{
-        background: h ? "rgba(255,255,255,0.04)" : "transparent",
-        color: TEXT,
-        border: h ? "1px solid rgba(255,255,255,0.2)" : HAIR,
-        borderRadius: 10,
-        padding: "13px 24px",
-        fontSize: 15,
-        fontWeight: 500,
-        fontFamily: "inherit",
-        cursor: "pointer",
-        width: full ? "100%" : "auto",
-        transition: "border-color .15s ease, background .15s ease",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Logo({ size = 26 }) {
-  return (
-    <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <img src="/logo.png" alt="" aria-hidden="true" style={{ height: size, width: "auto", display: "block" }} />
-      <span
-        style={{
-          fontFamily: "'Space Grotesk','Inter',sans-serif",
-          fontWeight: 600,
-          fontSize: 17,
-          letterSpacing: "-0.02em",
-          color: TEXT,
-        }}
-      >
-        NEXTGEN
-      </span>
-    </span>
-  );
-}
-
 function XIcon({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -295,75 +211,6 @@ function XIcon({ size = 16 }) {
     </svg>
   );
 }
-function DiscordIcon({ size = 17 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
-    </svg>
-  );
-}
-
-function Nav() {
-  const scrolled = useScrolled(32);
-  const [open, setOpen] = useState(false);
-  return (
-    <nav
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: scrolled ? "rgba(11,6,18,0.85)" : "transparent",
-        backdropFilter: scrolled ? "saturate(140%) blur(8px)" : "none",
-        borderBottom: scrolled ? HAIR : "1px solid transparent",
-        transition: "background .2s ease, border-color .2s ease",
-      }}
-    >
-      <div style={{ ...container, display: "flex", alignItems: "center", justifyContent: "space-between", height: 66 }}>
-        <a href="#top" style={{ textDecoration: "none" }}>
-          <Logo />
-        </a>
-        <div className="ng-navlinks" style={{ display: "flex", alignItems: "center", gap: 30 }}>
-          {NAV_LINKS.map((l) => (
-            <a key={l.label} href={l.href} style={{ fontSize: 15, color: MUTED, textDecoration: "none" }}>
-              {l.label}
-            </a>
-          ))}
-          <a href={LEARN} style={{ fontSize: 15, color: MUTED, textDecoration: "none" }}>
-            Login
-          </a>
-          <PrimaryButton onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
-        </div>
-        <button
-          className="ng-burger"
-          onClick={() => setOpen(!open)}
-          style={{ display: "none", background: "none", border: "none", color: TEXT, cursor: "pointer" }}
-          aria-label="Menu"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
-      {open && (
-        <div
-          className="ng-mobilemenu"
-          style={{ background: "#0E0820", borderBottom: HAIR, padding: "16px 24px 24px", display: "flex", flexDirection: "column", gap: 16 }}
-        >
-          {NAV_LINKS.map((l) => (
-            <a key={l.label} href={l.href} onClick={() => setOpen(false)} style={{ color: MUTED, fontSize: 16, textDecoration: "none" }}>
-              {l.label}
-            </a>
-          ))}
-          <a href={LEARN} onClick={() => setOpen(false)} style={{ color: MUTED, fontSize: 16, textDecoration: "none" }}>
-            Login
-          </a>
-          <PrimaryButton full onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
-        </div>
-      )}
-    </nav>
-  );
-}
-
 function Hero() {
   const [seen, setSeen] = useState(prefersReducedMotion);
   useEffect(() => {
@@ -633,122 +480,88 @@ function Plans() {
     <Section id="plans" alt>
       <FadeUp>
         <p style={{ ...eyebrow, marginBottom: 14 }}>Plans</p>
-        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Free is the foundation. Elite is the accelerator.</h2>
+        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Start free. Go deeper when you're ready.</h2>
         <p style={{ ...body, color: MUTED, maxWidth: 600, marginBottom: 48 }}>
-          Start free and learn for real. Elite is the premium tier — earned through contribution, not just bought — for
-          faster growth, deeper access, and real execution.
+          Everyone starts free. Elite is earned through contribution, not a subscription.
         </p>
       </FadeUp>
 
       <FadeUp delay={70}>
-        <div style={{ border: HAIR, borderRadius: 14, overflow: "hidden" }}>
-          <div
-            className="ng-plan-head"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 132px 132px",
-              gap: 16,
-              padding: "18px 24px",
-              borderBottom: HAIR,
-              background: "rgba(255,255,255,0.02)",
-            }}
-          >
-            <span />
-            <span style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: TEXT }}>NEXTGEN</span>
-            <span style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: CORAL }}>Elite</span>
-          </div>
-          {COMPARISON_ROWS.map((r, i) => (
-            <div
-              key={i}
-              className="ng-plan-row"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 132px 132px",
-                gap: 16,
-                alignItems: "center",
-                padding: "13px 24px",
-                borderBottom: i < COMPARISON_ROWS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-              }}
-            >
-              <span style={{ fontSize: 14.5, color: MUTED }}>{r.label}</span>
-              <span style={{ display: "flex", justifyContent: "center" }}>
-                {r.free ? <Check size={16} style={{ color: VIOLET }} /> : <span style={{ color: TERT }}>—</span>}
-              </span>
-              <span style={{ display: "flex", justifyContent: "center" }}>
-                <Check size={16} style={{ color: CORAL }} />
-              </span>
-            </div>
-          ))}
-        </div>
+        <PricingTable />
       </FadeUp>
+    </Section>
+  );
+}
 
-      <FadeUp delay={120}>
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 32 }}>
-          <PrimaryButton onClick={openDiscord}>Apply for Elite</PrimaryButton>
-          <GhostButton onClick={() => (window.location.hash = "#/learn")}>Start free</GhostButton>
+const FAQ_ITEMS = [
+  {
+    q: "What is NEXTGEN?",
+    a: "NEXTGEN is a beginner-friendly community for learning AI by doing. You start from zero, work through one focused lesson and a real assignment each day, and grow alongside people doing the same. The whole point is getting you real wins with AI.",
+  },
+  {
+    q: "Do I need experience?",
+    a: "No. NEXTGEN is built for people starting from zero. The path begins with your first prompt and builds up one step at a time, so you are never expected to already know things. It is a place where it is safe to not know things yet.",
+  },
+  {
+    q: "Is it free?",
+    a: "Yes. You can join and learn for free. The core path, the community, and the daily challenges are open to everyone at no cost.",
+  },
+  {
+    q: "What is Elite?",
+    a: "Elite is the deeper tier of NEXTGEN. It adds structured roadmaps, early access to programs and tools, direct guidance, priority for paid roles and leadership, Elite-only channels, and more visibility for your work.",
+  },
+  {
+    q: "Can I pay for Elite?",
+    a: "No. Elite is not a paid subscription and you cannot buy your way in. It is earned through contribution: showing up, doing the work, and helping the community.",
+  },
+  {
+    q: "Can Elite be lost?",
+    a: "Yes. Elite reflects ongoing contribution, so you keep it by staying active. If you step away and stop contributing, it can be lost, and you can earn it back the same way you earned it.",
+  },
+  {
+    q: "Can I get a job or earn from this?",
+    a: "NEXTGEN points you toward real opportunities, including paid roles and projects, and Elite members get priority for them. The skills you build are the kind people pay for. The work and the results are still up to you.",
+  },
+  {
+    q: "How do I get started?",
+    a: "Join free and start the path from day one. Pick your level, open the first lesson, and do that day's assignment. From there it is one focused day at a time.",
+  },
+];
+
+function Faq() {
+  return (
+    <Section id="faq">
+      <FadeUp>
+        <h2 style={{ ...h2, marginBottom: 28 }}>Questions</h2>
+      </FadeUp>
+      <FadeUp delay={70}>
+        <div style={{ maxWidth: 760, borderTop: HAIR }}>
+          <Accordion type="single" collapsible defaultValue="item-0">
+            {FAQ_ITEMS.map((item, i) => (
+              <AccordionItem key={item.q} value={`item-${i}`}>
+                <AccordionTrigger>{item.q}</AccordionTrigger>
+                <AccordionContent>{item.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </FadeUp>
     </Section>
   );
 }
 
-function Footer() {
-  return (
-    <footer style={{ borderTop: HAIR, padding: "52px 0" }}>
-      <div
-        style={{ ...container, display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 36 }}
-      >
-        <div style={{ maxWidth: 280 }}>
-          <Logo size={22} />
-          <p style={{ fontSize: 14, color: TERT, lineHeight: 1.6, margin: "14px 0 16px" }}>
-            The beginner-friendly AI community. Learn by doing, get real wins, and grow with people doing the work.
-          </p>
-          <div style={{ display: "flex", gap: 12 }}>
-            <a href={X_URL} target="_blank" rel="noopener noreferrer" aria-label="NEXTGEN on X" style={{ color: MUTED }}>
-              <XIcon />
-            </a>
-            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" aria-label="NEXTGEN on Discord" style={{ color: MUTED }}>
-              <DiscordIcon />
-            </a>
-          </div>
-          <p style={{ fontSize: 13, color: TERT, marginTop: 14 }}>
-            <span style={{ color: TEXT, fontWeight: 600 }}>500+</span> following on X
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: 56, flexWrap: "wrap" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ ...eyebrow, fontSize: 12 }}>Learn</span>
-            <a href="#tracks" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Paths</a>
-            <a href="#how" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>How it works</a>
-            <a href="#plans" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Plans</a>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <span style={{ ...eyebrow, fontSize: 12 }}>Community</span>
-            <a href={LEARN} style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Start Learning</a>
-            <a href={X_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>X</a>
-            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: MUTED, textDecoration: "none" }}>Discord</a>
-          </div>
-        </div>
-      </div>
-      <div style={{ ...container, marginTop: 40 }}>
-        <p style={{ fontSize: 13, color: TERT, margin: 0 }}>© {new Date().getFullYear()} NEXTGEN. All rights reserved.</p>
-      </div>
-    </footer>
-  );
-}
-
 export default function Landing() {
   return (
-    <div
-      id="top"
-      style={{
-        background: "linear-gradient(180deg, #120A24 0%, #0B0612 100%)",
-        minHeight: "100vh",
-        color: TEXT,
-        fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
-        overflowX: "hidden",
-      }}
-    >
+    <GeometricBackground>
+      <div
+        id="top"
+        style={{
+          minHeight: "100vh",
+          color: TEXT,
+          fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
+          overflowX: "hidden",
+        }}
+      >
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
@@ -759,7 +572,7 @@ export default function Landing() {
           .ng-navlinks{display:none !important}
           .ng-burger{display:block !important}
           .ng-hero-grid{grid-template-columns:1fr !important;gap:24px !important}
-          .ng-hero-visual{height:auto !important;min-height:240px !important;opacity:0.85 !important}
+          .ng-hero-visual{height:360px !important;min-height:360px !important;opacity:0.9 !important}
           .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-grid-4{grid-template-columns:1fr !important}
@@ -770,13 +583,17 @@ export default function Landing() {
         }
         @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
       `}</style>
-      <Nav />
+      <Navbar />
       <Hero />
+      <WhatYouGet />
       <Tracks />
       <HowItWorks />
       <Community />
+      <Testimonials />
       <Plans />
+      <Faq />
       <Footer />
-    </div>
+      </div>
+    </GeometricBackground>
   );
 }
