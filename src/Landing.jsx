@@ -60,21 +60,6 @@ const prefersReducedMotion =
 // True only at the lg breakpoint and up. Used to keep the Spline runtime off
 // mobile entirely — the component never mounts below this width, so no 3D
 // payload loads on small screens.
-function useIsDesktop() {
-  const query = "(min-width: 1024px)";
-  const [desktop, setDesktop] = useState(
-    typeof window !== "undefined" && window.matchMedia ? window.matchMedia(query).matches : false
-  );
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia(query);
-    const h = (e) => setDesktop(e.matches);
-    mq.addEventListener ? mq.addEventListener("change", h) : mq.addListener(h);
-    return () => (mq.removeEventListener ? mq.removeEventListener("change", h) : mq.removeListener(h));
-  }, []);
-  return desktop;
-}
-
 // Lightweight static visual for mobile, reduced-motion, and the
 // placeholder-scene case. Reuses the single brand accent gradient only — no new
 // color, no glow, no shadow, no second gradient.
@@ -105,13 +90,13 @@ function HeroStaticVisual() {
   );
 }
 
-// Decides what the hero's secondary slot shows. Spline mounts only on desktop,
-// only with a real scene URL, and only when reduced motion is off. Everything
-// else falls back to the static visual. Kept at lower visual weight so the
-// headline still wins the squint test.
+// Decides what the hero's secondary slot shows. The 3D robot mounts on all screen
+// sizes when a real scene URL is set and reduced motion is off; otherwise it falls
+// back to the static visual. Kept at lower visual weight so the headline still
+// wins the squint test. (The ~2MB scene is lazy-loaded and cross-faded in, so text
+// paints first.)
 function HeroVisual() {
-  const isDesktop = useIsDesktop();
-  const useSpline = isDesktop && HAS_REAL_SCENE && !prefersReducedMotion;
+  const useSpline = HAS_REAL_SCENE && !prefersReducedMotion;
   const [sceneLoaded, setSceneLoaded] = useState(false);
 
   if (!useSpline) {
@@ -587,7 +572,7 @@ export default function Landing() {
           .ng-navlinks{display:none !important}
           .ng-burger{display:block !important}
           .ng-hero-grid{grid-template-columns:1fr !important;gap:24px !important}
-          .ng-hero-visual{height:auto !important;min-height:240px !important;opacity:0.85 !important}
+          .ng-hero-visual{height:360px !important;min-height:360px !important;opacity:0.9 !important}
           .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-grid-4{grid-template-columns:1fr !important}
