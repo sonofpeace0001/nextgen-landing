@@ -6,6 +6,7 @@ import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
 import { WhatYouGet } from "./components/ui/what-you-get";
 import { Testimonials } from "./components/ui/testimonials";
+import GeometricBackground from "./components/ui/geometric";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -566,16 +567,16 @@ function Faq() {
 
 export default function Landing() {
   return (
-    <div
-      id="top"
-      style={{
-        background: "linear-gradient(180deg, #120A24 0%, #0B0612 100%)",
-        minHeight: "100vh",
-        color: TEXT,
-        fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
-        overflowX: "hidden",
-      }}
-    >
+    <GeometricBackground>
+      <div
+        id="top"
+        style={{
+          minHeight: "100vh",
+          color: TEXT,
+          fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
+          overflowX: "hidden",
+        }}
+      >
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
@@ -607,6 +608,7 @@ export default function Landing() {
       <Plans />
       <Faq />
       <Footer />
-    </div>
+      </div>
+    </GeometricBackground>
   );
 }

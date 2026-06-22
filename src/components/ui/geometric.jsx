@@ -33,38 +33,28 @@ function ElegantShape({ className, delay = 0, width = 400, height = 100, rotate 
   );
 }
 
+// Full-page backdrop: a fixed, full-viewport layer so the ambient shapes stay
+// behind the whole page while it scrolls. Content renders above it.
 export default function GeometricBackground({ children, className }) {
   return (
-    <div className={cn("relative w-full overflow-hidden bg-background", className)}>
-      {/* single subtle accent wash */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 50% 30%, color-mix(in srgb, var(--primary) 6%, transparent), transparent 70%)",
-        }}
-      />
-
-      <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
-        <ElegantShape delay={0.3} width={600} height={140} rotate={12} className="left-[-10%] top-[15%] md:left-[-5%] md:top-[20%]" />
-        <ElegantShape delay={0.5} width={500} height={120} rotate={-15} className="right-[-5%] top-[70%] md:right-[0%] md:top-[75%]" />
-        <ElegantShape delay={0.4} width={300} height={80} rotate={-8} className="bottom-[5%] left-[5%] md:bottom-[10%] md:left-[10%]" />
-        <ElegantShape delay={0.6} width={200} height={60} rotate={20} className="right-[15%] top-[10%] md:right-[20%] md:top-[15%]" />
-        <ElegantShape delay={0.7} width={150} height={40} rotate={-25} className="left-[20%] top-[5%] md:left-[25%] md:top-[10%]" />
+    <div className={cn("relative w-full", className)}>
+      <div aria-hidden="true" className="fixed inset-0 overflow-hidden bg-background">
+        {/* single subtle accent wash */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(55% 45% at 50% 25%, color-mix(in srgb, var(--primary) 6%, transparent), transparent 70%)",
+          }}
+        />
+        <ElegantShape delay={0.3} width={600} height={140} rotate={12} className="left-[-10%] top-[12%] md:left-[-5%] md:top-[16%]" />
+        <ElegantShape delay={0.5} width={500} height={120} rotate={-15} className="right-[-5%] top-[58%] md:right-[0%] md:top-[62%]" />
+        <ElegantShape delay={0.4} width={300} height={80} rotate={-8} className="bottom-[8%] left-[4%] md:left-[10%]" />
+        <ElegantShape delay={0.6} width={200} height={60} rotate={20} className="right-[14%] top-[8%] md:right-[20%]" />
+        <ElegantShape delay={0.7} width={150} height={40} rotate={-25} className="left-[22%] bottom-[18%] md:left-[28%]" />
       </div>
 
       <div className="relative z-10">{children}</div>
-
-      {/* token-based top/bottom vignette */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(to top, var(--background), transparent 15%, transparent 85%, color-mix(in srgb, var(--background) 80%, transparent))",
-        }}
-      />
     </div>
   );
 }

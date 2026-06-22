@@ -1,5 +1,3 @@
-import GeometricBackground from "./geometric";
-
 // ⚠️ PLACEHOLDER testimonials — fictional examples written for layout only.
 // They are NOT real people or real quotes. Replace with real, consented
 // testimonials (pass a `testimonials` prop) before promoting these publicly.
@@ -44,17 +42,15 @@ function TestimonialCard({ quote, name, role }) {
 export function Testimonials({ testimonials = DEFAULT_TESTIMONIALS }) {
   if (!testimonials || testimonials.length === 0) return null;
   return (
-    <GeometricBackground>
-      <section id="testimonials" className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
-        <h2 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          What members say
-        </h2>
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <TestimonialCard key={`${t.name}-${i}`} quote={t.quote} name={t.name} role={t.role} />
-          ))}
-        </div>
-      </section>
-    </GeometricBackground>
+    <section id="testimonials" className="mx-auto max-w-6xl px-6 py-20 sm:py-28">
+      <h2 className="font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+        What members say
+      </h2>
+      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {testimonials.map((t, i) => (
+          <TestimonialCard key={`${t.name}-${i}`} quote={t.quote} name={t.name} role={t.role} />
+        ))}
+      </div>
+    </section>
   );
 }
