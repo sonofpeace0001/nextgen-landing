@@ -5,6 +5,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./
 import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
 import { WhatYouGet } from "./components/ui/what-you-get";
+import { Testimonials } from "./components/ui/testimonials";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -602,6 +603,7 @@ export default function Landing() {
       <Tracks />
       <HowItWorks />
       <Community />
+      <Testimonials />
       <Plans />
       <Faq />
       <Footer />
