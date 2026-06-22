@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Check, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { SplineScene } from "./components/SplineScene";
+import { PricingTable } from "./components/ui/pricing-table";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -44,19 +45,6 @@ const LOOP_STEPS = [
   { n: "04", title: "Score", desc: "Your work is scored against a clear rubric, with an auto-graded check to confirm you have it." },
 ];
 
-const COMPARISON_ROWS = [
-  { label: "Learning paths for in-demand skills", free: true },
-  { label: "A community of builders", free: true },
-  { label: "Access to opportunities (jobs, paid projects)", free: true },
-  { label: "Start from zero, no experience needed", free: true },
-  { label: "Advanced structured roadmaps", free: false },
-  { label: "Exclusive and early-access opportunities", free: false },
-  { label: "Direct mentorship and guidance", free: false },
-  { label: "Priority access to tools and resources", free: false },
-  { label: "Elite-only channels and strategy calls", free: false },
-  { label: "Priority for paid roles and ambassador slots", free: false },
-  { label: "Increased visibility for your personal brand", free: false },
-];
 
 const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
@@ -236,32 +224,6 @@ function PrimaryButton({ children, onClick, full }) {
         width: full ? "100%" : "auto",
         filter: h ? "brightness(1.12)" : "none",
         transition: "filter .15s ease",
-      }}
-    >
-      {children}
-    </button>
-  );
-}
-
-function GhostButton({ children, onClick, full }) {
-  const [h, setH] = useState(false);
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setH(true)}
-      onMouseLeave={() => setH(false)}
-      style={{
-        background: h ? "rgba(255,255,255,0.04)" : "transparent",
-        color: TEXT,
-        border: h ? "1px solid rgba(255,255,255,0.2)" : HAIR,
-        borderRadius: 10,
-        padding: "13px 24px",
-        fontSize: 15,
-        fontWeight: 500,
-        fontFamily: "inherit",
-        cursor: "pointer",
-        width: full ? "100%" : "auto",
-        transition: "border-color .15s ease, background .15s ease",
       }}
     >
       {children}
@@ -633,60 +595,14 @@ function Plans() {
     <Section id="plans" alt>
       <FadeUp>
         <p style={{ ...eyebrow, marginBottom: 14 }}>Plans</p>
-        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Free is the foundation. Elite is the accelerator.</h2>
+        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Start free. Go deeper when you're ready.</h2>
         <p style={{ ...body, color: MUTED, maxWidth: 600, marginBottom: 48 }}>
-          Start free and learn for real. Elite is the premium tier — earned through contribution, not just bought — for
-          faster growth, deeper access, and real execution.
+          Everyone starts free. Elite is earned through contribution, not a subscription.
         </p>
       </FadeUp>
 
       <FadeUp delay={70}>
-        <div style={{ border: HAIR, borderRadius: 14, overflow: "hidden" }}>
-          <div
-            className="ng-plan-head"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 132px 132px",
-              gap: 16,
-              padding: "18px 24px",
-              borderBottom: HAIR,
-              background: "rgba(255,255,255,0.02)",
-            }}
-          >
-            <span />
-            <span style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: TEXT }}>NEXTGEN</span>
-            <span style={{ textAlign: "center", fontSize: 14, fontWeight: 600, color: CORAL }}>Elite</span>
-          </div>
-          {COMPARISON_ROWS.map((r, i) => (
-            <div
-              key={i}
-              className="ng-plan-row"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 132px 132px",
-                gap: 16,
-                alignItems: "center",
-                padding: "13px 24px",
-                borderBottom: i < COMPARISON_ROWS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-              }}
-            >
-              <span style={{ fontSize: 14.5, color: MUTED }}>{r.label}</span>
-              <span style={{ display: "flex", justifyContent: "center" }}>
-                {r.free ? <Check size={16} style={{ color: VIOLET }} /> : <span style={{ color: TERT }}>—</span>}
-              </span>
-              <span style={{ display: "flex", justifyContent: "center" }}>
-                <Check size={16} style={{ color: CORAL }} />
-              </span>
-            </div>
-          ))}
-        </div>
-      </FadeUp>
-
-      <FadeUp delay={120}>
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginTop: 32 }}>
-          <PrimaryButton onClick={openDiscord}>Apply for Elite</PrimaryButton>
-          <GhostButton onClick={() => (window.location.hash = "#/learn")}>Start free</GhostButton>
-        </div>
+        <PricingTable />
       </FadeUp>
     </Section>
   );
