@@ -53,10 +53,9 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 border-b transition-colors duration-200 motion-reduce:transition-none",
-        scrolled
-          ? "border-border bg-[color-mix(in_srgb,var(--background)_85%,transparent)] backdrop-blur"
-          : "border-transparent bg-transparent",
+        // Solid background at all times so page content never shows through / overlaps the bar.
+        "fixed inset-x-0 top-0 z-50 border-b bg-background transition-colors duration-200 motion-reduce:transition-none",
+        scrolled ? "border-border" : "border-transparent",
       )}
     >
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
