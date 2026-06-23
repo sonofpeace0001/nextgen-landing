@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How I Built a Full Landing Page — $0, No Code, Just Talking to AI</title>
+<meta name="description" content="A step-by-step guide to building a premium landing page using CREAO AI + free components. Zero code, zero cost.">
+<meta property="og:title" content="How I Built a Full Landing Page — $0, No Code">
+<meta property="og:description" content="I described what I wanted in plain English. AI wrote every line of code. I deployed for free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#000;color:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:#fff;text-decoration:none}
+
+/* Layout */
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+section{padding:100px 0}
+section:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.06)}
+
+/* Typography */
+.label{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);font-weight:500;margin-bottom:16px}
+h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px}
+h3{font-size:20px;font-weight:600;letter-spacing:-0.01em;margin-bottom:8px}
+.muted{color:rgba(255,255,255,0.45)}
+.sub{font-size:16px;line-height:1.65;color:rgba(255,255,255,0.5);max-width:600px;font-weight:300}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:13px 28px;border-radius:8px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s ease;border:none;text-decoration:none}
+.btn-primary{background:#fff;color:#000}
+.btn-primary:hover{background:rgba(255,255,255,0.85);transform:translateY(-1px)}
+.btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.25)}
+.btn-outline:hover{border-color:rgba(255,255,255,0.6);transform:translateY(-1px)}
+.btn-sm{padding:8px 16px;font-size:12px}
+
+/* Cards */
+.card{border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;background:rgba(255,255,255,0.02);transition:border-color .3s ease, transform .3s ease}
+.card:hover{border-color:rgba(255,255,255,0.18);transform:translateY(-2px)}
+
+/* Grid */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);font-weight:500;font-size:11px;letter-spacing:0.06em;text-transform:uppercase}
+.tbl td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.7);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .total td{color:#fff;font-weight:700;border-top:1px solid rgba(255,255,255,0.15)}
+
+/* Prompt cards */
+.prompt-card{border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;margin-bottom:12px;transition:border-color .3s ease}
+.prompt-card:hover{border-color:rgba(255,255,255,0.2)}
+.prompt-header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06)}
+.prompt-num{font-size:12px;font-weight:700;color:rgba(255,255,255,0.3)}
+.prompt-title{font-size:13px;font-weight:600}
+.prompt-body{padding:16px 20px;font-size:12.5px;line-height:1.7;color:rgba(255,255,255,0.6);font-family:'SF Mono','Fira Code',monospace}
+.prompt-body .ph{color:#fff;font-weight:600;border-bottom:1px dashed rgba(255,255,255,0.3)}
+.copy-btn{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 12px;cursor:pointer;font-family:inherit;transition:all .2s}
+.copy-btn:hover{color:#fff;border-color:rgba(255,255,255,0.3)}
+.copy-btn.copied{color:#fff;background:rgba(255,255,255,0.15)}
+
+/* Timeline */
+.timeline{position:relative;padding-left:48px}
+.timeline::before{content:'';position:absolute;left:18px;top:8px;bottom:8px;width:1px;background:rgba(255,255,255,0.08)}
+.timeline-step{position:relative;margin-bottom:28px}
+.timeline-step:last-child{margin-bottom:0}
+.timeline-dot{position:absolute;left:-48px;top:2px;width:37px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;background:rgba(255,255,255,0.03)}
+.timeline-step h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.timeline-step p{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6}
+
+/* Step cards */
+.step-card{position:relative;padding:32px}
+.step-num{font-size:64px;font-weight:200;color:rgba(255,255,255,0.08);letter-spacing:-0.04em;line-height:1;margin-bottom:16px}
+
+/* Hero */
+.hero{padding:160px 0 120px;text-align:center}
+.hero h1{font-size:clamp(36px,6vw,64px);font-weight:800;letter-spacing:-0.04em;line-height:1.05;margin-bottom:24px}
+.hero .gray{color:rgba(255,255,255,0.5)}
+.hero .sub{margin:0 auto 36px}
+.hero-meta{font-size:13px;color:rgba(255,255,255,0.3);margin-top:24px;letter-spacing:0.02em}
+.hero-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* Footer */
+footer{border-top:1px solid rgba(255,255,255,0.06);padding:60px 0;text-align:center}
+footer p{color:rgba(255,255,255,0.3);font-size:13px;line-height:1.7}
+footer .links{margin-top:20px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+footer .links a{font-size:12px;color:rgba(255,255,255,0.3);transition:color .2s}
+footer .links a:hover{color:#fff}
+
+/* Result cards */
+.result-card{padding:16px 20px}
+.result-card h4{font-size:13px;font-weight:600;margin-bottom:3px}
+.result-card p{font-size:11.5px;color:rgba(255,255,255,0.35);line-height:1.5}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#fff;color:#000;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:all .3s ease;pointer-events:none;z-index:100}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Responsive */
+@media(max-width:768px){
+  .grid-3{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  section{padding:72px 0}
+  .hero{padding:120px 0 80px}
+  .tbl{font-size:11px}
+  .tbl th,.tbl td{padding:8px 10px}
+  .prompt-body{font-size:11px}
+}
+@media(max-width:480px){
+  .grid-3{grid-template-columns:1fr}
+  .hero-buttons{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Toast notification -->
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+<div class="container">
+  <p class="label">A build guide by SON OF PEACE</p>
+  <h1>How I Built a Full Landing Page<br><span class="gray">— $0, No Code, Just Talking to AI</span></h1>
+  <p class="sub" style="text-align:center">I described what I wanted in plain English. CREAO wrote every line of code. I deployed it for free. Here is exactly how.</p>
+  <div class="hero-buttons">
+    <a href="https://creao.ai/@Sonofpeace" target="_blank" class="btn btn-primary">Start Building →</a>
+    <a href="https://nextgenai-web.vercel.app/" target="_blank" class="btn btn-outline">See the Live Site →</a>
+  </div>
+  <p class="hero-meta">Total cost: $0 · No code · No design skills · ~30 minutes</p>
+</div>
+</section>
+
+<!-- ═══ WHAT I BUILT ═══ -->
+<section>
+<div class="container">
+  <p class="label">The Result</p>
+  <h2>What I ended up with</h2>
+  <p class="sub" style="margin-bottom:40px">A full landing page with auth, a learning dashboard, and 11 polished sections — built entirely through conversation.</p>
+  <div class="grid-3">
+    <div class="card result-card"><h4>3D Hero</h4><p>Full-screen interactive Spline scene with gradient text</p></div>
+    <div class="card result-card"><h4>Animated Background</h4><p>Floating geometric shapes that drift and glow</p></div>
+    <div class="card result-card"><h4>Features Section</h4><p>"What you get" — 4 benefit cards in a grid</p></div>
+    <div class="card result-card"><h4>Learning Paths</h4><p>3 track cards: Novice, Intermediate, Advanced</p></div>
+    <div class="card result-card"><h4>How It Works</h4><p>4-step daily learning loop with numbered steps</p></div>
+    <div class="card result-card"><h4>Community</h4><p>Founder photo, 400+ stat, social links</p></div>
+    <div class="card result-card"><h4>Testimonials</h4><p>6 real member quote cards</p></div>
+    <div class="card result-card"><h4>Pricing Table</h4><p>Free vs Elite comparison with check marks</p></div>
+    <div class="card result-card"><h4>FAQ Accordion</h4><p>8 expandable questions with smooth animation</p></div>
+    <div class="card result-card"><h4>Auth + Dashboard</h4><p>Signup, login, enrollment, daily lessons, scoring</p></div>
+    <div class="card result-card"><h4>Navbar + Footer</h4><p>Sticky nav, social icons, responsive mobile menu</p></div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ THE PROCESS ═══ -->
+<section>
+<div class="container">
+  <p class="label">The Process</p>
+  <h2>Three steps. That's it.</h2>
+  <p class="sub" style="margin-bottom:48px">No code editor, no terminal, no programming knowledge.</p>
+  <div class="grid-3">
+    <div class="card step-card">
+      <div class="step-num">01</div>
+      <h3>Copy free components from 21st.dev</h3>
+      <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:1.6">Go to <a href="https://21st.dev" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.3)">21st.dev</a>, search for the components in the table below, click "Copy Code", save them.</p>
+    </div>
+    <div class="card step-card">
+      <div class="step-num">02</div>
+      <h3>Paste into CREAO and describe what you want</h3>
+      <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:1.6">Open <a href="https://creao.ai/@Sonofpeace" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.3)">CREAO Super Agent</a>, paste the component code, describe your sections in plain English. CREAO writes all the code.</p>
+    </div>
+    <div class="card step-card">
+      <div class="step-num">03</div>
+      <h3>Deploy on Vercel for free</h3>
+      <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:1.6">CREAO pushes to GitHub. Import to <a href="https://vercel.com" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.3)">Vercel</a>, click Deploy. Free <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;font-size:12px">.vercel.app</code> domain included.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ 21ST.DEV COMPONENTS ═══ -->
+<section>
+<div class="container">
+  <p class="label">Component Cheat Sheet</p>
+  <h2>What to copy from 21st.dev</h2>
+  <p class="sub" style="margin-bottom:32px">Go to <a href="https://21st.dev" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.3)">21st.dev</a>, search each term, copy the code, paste into your CREAO chat.</p>
+  <div style="border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden">
+    <table class="tbl">
+      <thead><tr><th>Section</th><th>Search on 21st.dev</th><th>What to tell CREAO</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600;color:#fff">Hero 3D</td><td>Spline Scene</td><td>"Use this for a full-screen 3D hero, lazy-load it"</td></tr>
+        <tr><td style="font-weight:600;color:#fff">Background</td><td>Shape Landing Hero</td><td>"Use these floating shapes behind the hero"</td></tr>
+        <tr><td style="font-weight:600;color:#fff">Navbar</td><td>header <em>or</em> navbar</td><td>"Use this style but simpler — just anchor links"</td></tr>
+        <tr><td style="font-weight:600;color:#fff">Testimonials</td><td>Testimonials Columns</td><td>"Use this card layout with my real quotes"</td></tr>
+        <tr><td style="font-weight:600;color:#fff">Pricing</td><td>Pricing Table</td><td>"Use this comparison style for my tiers"</td></tr>
+        <tr><td style="font-weight:600;color:#fff">FAQ</td><td>Accordion</td><td>"First item open by default, single-expand"</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- ═══ EXACT PROMPTS ═══ -->
+<section>
+<div class="container">
+  <p class="label">Copy-Paste Prompts</p>
+  <h2>The exact 8 prompts I used</h2>
+  <p class="sub" style="margin-bottom:32px">Replace the <span style="color:#fff;font-weight:600;border-bottom:1px dashed rgba(255,255,255,0.3)">[PLACEHOLDERS]</span> with your content. Copy each prompt into CREAO.</p>
+
+  <div class="prompt-card" id="p1">
+    <div class="prompt-header"><div><span class="prompt-num">01</span> &nbsp; <span class="prompt-title">Set up the project</span></div><button class="copy-btn" onclick="copyPrompt('p1')">Copy</button></div>
+    <div class="prompt-body">Create a React + Vite landing page project for <span class="ph">[YOUR PROJECT NAME]</span>. <span class="ph">[Dark/Light]</span> theme, premium feel. Use Tailwind CSS. Primary color <span class="ph">[YOUR COLOR]</span>. Fonts: Inter for body, Space Grotesk for headings. The tagline is "<span class="ph">[YOUR TAGLINE]</span>".</div>
+  </div>
+
+  <div class="prompt-card" id="p2">
+    <div class="prompt-header"><div><span class="prompt-num">02</span> &nbsp; <span class="prompt-title">Build the hero</span></div><button class="copy-btn" onclick="copyPrompt('p2')">Copy</button></div>
+    <div class="prompt-body">Build a full-screen hero section. The headline is "<span class="ph">[YOUR HEADLINE]</span>" with a gradient effect. Subtitle: "<span class="ph">[YOUR SUPPORTING TEXT]</span>". Two CTA buttons: "<span class="ph">[PRIMARY BUTTON]</span>" linking to <span class="ph">[URL]</span> and "<span class="ph">[SECONDARY BUTTON]</span>" linking to <span class="ph">[URL]</span>. Use <span class="ph">[animated shapes / Spline 3D / gradient background]</span>. Make it look premium.</div>
+  </div>
+
+  <div class="prompt-card" id="p3">
+    <div class="prompt-header"><div><span class="prompt-num">03</span> &nbsp; <span class="prompt-title">Add features</span></div><button class="copy-btn" onclick="copyPrompt('p3')">Copy</button></div>
+    <div class="prompt-body">Add a "What you get" section with 4 feature cards in a 2×2 grid:<br>1. <span class="ph">[EMOJI]</span> <span class="ph">[TITLE]</span> — <span class="ph">[DESCRIPTION]</span><br>2. <span class="ph">[EMOJI]</span> <span class="ph">[TITLE]</span> — <span class="ph">[DESCRIPTION]</span><br>3. <span class="ph">[EMOJI]</span> <span class="ph">[TITLE]</span> — <span class="ph">[DESCRIPTION]</span><br>4. <span class="ph">[EMOJI]</span> <span class="ph">[TITLE]</span> — <span class="ph">[DESCRIPTION]</span></div>
+  </div>
+
+  <div class="prompt-card" id="p4">
+    <div class="prompt-header"><div><span class="prompt-num">04</span> &nbsp; <span class="prompt-title">How it works + community + footer</span></div><button class="copy-btn" onclick="copyPrompt('p4')">Copy</button></div>
+    <div class="prompt-body">Add these sections:<br>1. How it works — <span class="ph">[3-4 NUMBERED STEPS]</span><br>2. Community — Founder section with photo, '<span class="ph">[YOUR STAT]</span>' stat, X link <span class="ph">[@HANDLE]</span>, Discord join button<br>3. Footer — Logo, X and Discord links</div>
+  </div>
+
+  <div class="prompt-card" id="p5">
+    <div class="prompt-header"><div><span class="prompt-num">05</span> &nbsp; <span class="prompt-title">Add testimonials</span></div><button class="copy-btn" onclick="copyPrompt('p5')">Copy</button></div>
+    <div class="prompt-body">Add a testimonials section. Here are the quotes:<br>- <span class="ph">[NAME]</span>, <span class="ph">[ROLE]</span>: "<span class="ph">[QUOTE]</span>"<br>- <span class="ph">[NAME]</span>, <span class="ph">[ROLE]</span>: "<span class="ph">[QUOTE]</span>"<br>- <span class="ph">[NAME]</span>, <span class="ph">[ROLE]</span>: "<span class="ph">[QUOTE]</span>"<br>- <span class="ph">[NAME]</span>, <span class="ph">[ROLE]</span>: "<span class="ph">[QUOTE]</span>"</div>
+  </div>
+
+  <div class="prompt-card" id="p6">
+    <div class="prompt-header"><div><span class="prompt-num">06</span> &nbsp; <span class="prompt-title">Pricing table</span></div><button class="copy-btn" onclick="copyPrompt('p6')">Copy</button></div>
+    <div class="prompt-body">Add a pricing section. Two tiers:<br><span class="ph">[TIER 1 NAME]</span> (<span class="ph">[PRICE/LABEL]</span>): <span class="ph">[FEATURE 1, FEATURE 2, ...]</span><br><span class="ph">[TIER 2 NAME]</span> (<span class="ph">[PRICE/LABEL]</span>): Everything in free + <span class="ph">[PREMIUM FEATURE 1, ...]</span><br>Use check marks for included, dashes for excluded.</div>
+  </div>
+
+  <div class="prompt-card" id="p7">
+    <div class="prompt-header"><div><span class="prompt-num">07</span> &nbsp; <span class="prompt-title">FAQ accordion</span></div><button class="copy-btn" onclick="copyPrompt('p7')">Copy</button></div>
+    <div class="prompt-body">Add an FAQ accordion. First question open by default:<br>1. <span class="ph">[QUESTION]</span> → <span class="ph">[ANSWER]</span><br>2. <span class="ph">[QUESTION]</span> → <span class="ph">[ANSWER]</span><br>3. <span class="ph">[QUESTION]</span> → <span class="ph">[ANSWER]</span><br>4. <span class="ph">[QUESTION]</span> → <span class="ph">[ANSWER]</span></div>
+  </div>
+
+  <div class="prompt-card" id="p8">
+    <div class="prompt-header"><div><span class="prompt-num">08</span> &nbsp; <span class="prompt-title">Push &amp; deploy</span></div><button class="copy-btn" onclick="copyPrompt('p8')">Copy</button></div>
+    <div class="prompt-body">Push everything to my GitHub repo. Add proper SEO meta tags and Open Graph tags. The page title should be "<span class="ph">[YOUR PROJECT NAME]</span> — <span class="ph">[YOUR TAGLINE]</span>". The meta description should be "<span class="ph">[1 SENTENCE ABOUT YOUR PROJECT]</span>".</div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ DEPLOY WALKTHROUGH ═══ -->
+<section>
+<div class="container">
+  <p class="label">Deploy Walkthrough</p>
+  <h2>From code to live site in 5 minutes</h2>
+  <p class="sub" style="margin-bottom:40px">After CREAO pushes your code to GitHub, follow these steps to go live.</p>
+  <div class="timeline">
+    <div class="timeline-step"><div class="timeline-dot">A</div><h4>Create a GitHub account</h4><p>Go to <a href="https://github.com/signup" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.2)">github.com/signup</a> — enter email, password, username. Free.</p></div>
+    <div class="timeline-step"><div class="timeline-dot">B</div><h4>Connect GitHub in CREAO</h4><p>In <a href="https://creao.ai/@Sonofpeace" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.2)">CREAO</a>: Profile → Settings → Integrations → GitHub → Authorize. One time only.</p></div>
+    <div class="timeline-step"><div class="timeline-dot">C</div><h4>Create a Vercel account</h4><p>Go to <a href="https://vercel.com" target="_blank" style="border-bottom:1px solid rgba(255,255,255,0.2)">vercel.com</a> → Sign Up → Continue with GitHub. Choose Hobby (free).</p></div>
+    <div class="timeline-step"><div class="timeline-dot">D</div><h4>Import your repo</h4><p>Vercel Dashboard → Add New → Project → find your repo in the list → click Import.</p></div>
+    <div class="timeline-step"><div class="timeline-dot">E</div><h4>Verify settings (auto-detected)</h4><p>Framework: Vite · Build command: <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:12px">npm run build</code> · Output: <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:12px">dist</code></p></div>
+    <div class="timeline-step"><div class="timeline-dot">F</div><h4>Add env vars (if using Supabase)</h4><p>Click Environment Variables → add <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:12px">VITE_SUPABASE_URL</code> and <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:12px">VITE_SUPABASE_ANON_KEY</code>. Get them from Supabase → Settings → API.</p></div>
+    <div class="timeline-step"><div class="timeline-dot">G</div><h4>Click Deploy</h4><p>Wait ~60 seconds. Vercel builds and deploys. You see confetti 🎉 when it's ready.</p></div>
+    <div class="timeline-step"><div class="timeline-dot">H</div><h4>Your free domain is live</h4><p>Your site is at <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-size:12px">yourproject.vercel.app</code>. HTTPS, CDN, auto-deploy on every push. Free forever.</p></div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ COST BREAKDOWN ═══ -->
+<section>
+<div class="container">
+  <p class="label">Cost Breakdown</p>
+  <h2>Total: $0</h2>
+  <p class="sub" style="margin-bottom:32px">Every single tool is free. Including the domain.</p>
+  <div style="border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;max-width:500px">
+    <table class="tbl">
+      <thead><tr><th>Tool</th><th style="text-align:right">Cost</th></tr></thead>
+      <tbody>
+        <tr><td>CREAO Super Agent</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr><td>21st.dev components</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr><td>Spline 3D scenes</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr><td>GitHub</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr><td>Vercel hosting</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr><td>Supabase (auth + DB)</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr><td>Domain (.vercel.app)</td><td style="text-align:right;color:rgba(255,255,255,0.4)">$0</td></tr>
+        <tr class="total"><td style="font-size:15px">Total</td><td style="text-align:right;font-size:15px">$0</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <p style="color:rgba(255,255,255,0.5);font-size:15px;margin-bottom:4px">Built by <strong style="color:#fff">SON OF PEACE</strong> for the NEXTGEN community.</p>
+  <p style="color:rgba(255,255,255,0.25);font-size:14px;font-style:italic;margin-bottom:28px">The whole thing was a conversation.</p>
+  <a href="https://creao.ai/@Sonofpeace" target="_blank" class="btn btn-primary">Start Building with CREAO →</a>
+  <div class="links">
+    <a href="https://nextgenai-web.vercel.app/" target="_blank">Live Site</a>
+    <a href="https://21st.dev" target="_blank">21st.dev</a>
+    <a href="https://github.com" target="_blank">GitHub</a>
+    <a href="https://vercel.com" target="_blank">Vercel</a>
+    <a href="https://creao.ai/@Sonofpeace" target="_blank">CREAO</a>
+  </div>
+</footer>
+
+<script>
+function copyPrompt(id){
+  const el=document.getElementById(id);
+  const body=el.querySelector('.prompt-body');
+  const text=body.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=el.querySelector('.copy-btn');
+    btn.textContent='Copied!';
+    btn.classList.add('copied');
+    const toast=document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(()=>{toast.classList.remove('show')},2000);
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},3000);
+  });
+}
+</script>
+</body>
+</html>
