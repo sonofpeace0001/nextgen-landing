@@ -12,8 +12,9 @@ export const ENTRY_LEVELS = {
   advanced: { startTier: "expert", totalDays: 30 },
 };
 
-// Drip default: completion-gated, at most one new day per calendar day.
-export const DEFAULT_UNLOCK_MODE = "completion_capped";
+// Drip default: completion-gated — the next day unlocks as soon as the previous
+// one is completed (no calendar-day cooldown), so members can move at their pace.
+export const DEFAULT_UNLOCK_MODE = "completion";
 
 // Auto-graded checks must hit this percent to count as passed.
 export const DEFAULT_PASS_PCT = 70;
