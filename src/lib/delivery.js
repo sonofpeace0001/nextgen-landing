@@ -66,7 +66,9 @@ export function buildPathView({ plan, days, submissions, enrollment, today = new
         dayIndex: i,
         total,
         startDate: enrollment.start_date,
-        unlockMode: enrollment.unlock_mode,
+        // Default to 'completion' if the field is ever missing, so an omitted
+        // select can't silently re-lock every day after day 1.
+        unlockMode: enrollment.unlock_mode || "completion",
         completions,
         today,
       }),
