@@ -497,10 +497,29 @@ function LessonView({ enrollment, track, onBack }) {
               const selRow = view.find((d) => d.dayIndex === selected);
               const existing = subs.find((s) => s.day_id === content.id);
               if (selRow && selRow.status === "completed") {
+                const hasNext = selected < view.length;
+                const nextRow = view.find((d) => d.dayIndex === selected + 1);
+                const nextUnlocked = !!nextRow && nextRow.status !== "locked";
                 return (
-                  <p style={{ fontSize: 13, color: "#34D399", marginTop: 14 }}>
-                    Completed · score {existing?.score ?? "—"}
-                  </p>
+                  <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
+                    <p style={{ fontSize: 13, color: "#34D399", margin: 0 }}>
+                      Completed · score {existing?.score ?? "—"}
+                    </p>
+                    {hasNext ? (
+                      <button
+                        style={{ ...primaryBtn, opacity: nextUnlocked ? 1 : 0.6, cursor: nextUnlocked ? "pointer" : "not-allowed" }}
+                        onClick={() => nextUnlocked && openDay(selected + 1)}
+                        disabled={!nextUnlocked}
+                        title={nextUnlocked ? `Go to Day ${selected + 1}` : "Finish this day to unlock the next"}
+                      >
+                        Next: Day {selected + 1} →
+                      </button>
+                    ) : (
+                      <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
+                        You've reached the end of your path. Nice work.
+                      </p>
+                    )}
+                  </div>
                 );
               }
               return <SubmitPanel key={content.id} day={content} enrollmentId={enrollment.id} onSubmitted={load} />;
