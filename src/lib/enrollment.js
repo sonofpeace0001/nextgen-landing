@@ -64,7 +64,7 @@ export async function createEnrollment(supabase, { trackId, entryLevel }) {
 export async function getMyEnrollments(supabase) {
   const { data, error } = await supabase
     .from("enrollment")
-    .select("id, track_id, entry_level, start_tier_id, start_date, total_days, current_day, status")
+    .select("id, track_id, entry_level, start_tier_id, start_date, total_days, current_day, status, unlock_mode")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
