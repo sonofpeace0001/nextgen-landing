@@ -7,6 +7,7 @@ import { Footer } from "./components/ui/footer";
 import { WhatYouGet } from "./components/ui/what-you-get";
 import { Testimonials } from "./components/ui/testimonials";
 import GeometricBackground from "./components/ui/geometric";
+import { VipSection } from "./components/VipSection";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -489,6 +490,15 @@ function Plans() {
       <FadeUp delay={70}>
         <PricingTable />
       </FadeUp>
+      <FadeUp delay={100}>
+        <p style={{ fontSize: 13, color: MUTED, marginTop: 18 }}>
+          want 1-on-1 with the founder?{" "}
+          <a href="#vip" style={{ color: MUTED, textDecoration: "underline" }}>
+            see NEXTGEN VIP below
+          </a>
+          .
+        </p>
+      </FadeUp>
     </Section>
   );
 }
@@ -525,6 +535,14 @@ const FAQ_ITEMS = [
   {
     q: "How do I get started?",
     a: "Join free and start the path from day one. Pick your level, open the first lesson, and do that day's assignment. From there it is one focused day at a time.",
+  },
+  {
+    q: "What's the difference between Elite and VIP?",
+    a: "Elite is a recognition tier you earn by contributing to the community. It can't be bought. VIP is a paid 8-week 1-on-1 program with the founder for people who want the fast track. Different things: one is earned status, the other is paid direct guidance.",
+  },
+  {
+    q: "What do I get in VIP?",
+    a: "Eight weeks of 1-on-1. Two live 45-minute calls a month, async feedback on your work between calls, and a clear path from zero to building real things with AI. $150 one-time, 8 seats per intake, everyone starts together.",
   },
 ];
 
@@ -591,6 +609,7 @@ export default function Landing() {
       <Community />
       <Testimonials />
       <Plans />
+      <VipSection />
       <Faq />
       <Footer />
       </div>

@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: "What is NEXTGEN", href: "#how" },
   { label: "Learning Paths", href: "#tracks" },
   { label: "Elite", href: "#plans" },
+  { label: "VIP", href: "#vip" },
   { label: "FAQ", href: "#faq" },
 ];
 
