@@ -12,6 +12,12 @@ import "@fontsource/space-grotesk/600.css";
 import "@fontsource/space-grotesk/700.css";
 import "./index.css";
 
+// Password-recovery links from Supabase land on the site root with a token in
+// the URL hash. Captured synchronously at load, before the auth client consumes
+// and cleans the hash, so we can route the arrival into the Academy.
+const arrivedFromRecovery =
+  typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+
 // Lightweight hash routing (no router dep, matching the site's hash-anchor style):
 // #/learn -> the Academy learning app; everything else -> the marketing page.
 function Root() {
@@ -22,6 +28,7 @@ function Root() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
   if (hash.startsWith("#/admin")) return <AdminApp />;
+  if (arrivedFromRecovery) return <AcademyApp />;
   return hash.startsWith("#/learn") ? <AcademyApp /> : <Landing />;
 }
 

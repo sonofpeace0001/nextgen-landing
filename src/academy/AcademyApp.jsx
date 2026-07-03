@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
-import { signIn, signUp, signOut, getSession, onAuthChange } from "../lib/auth.js";
+import {
+  signIn, signUp, signOut, getSession, onAuthChange,
+  requestPasswordReset, updatePassword, onPasswordRecovery,
+} from "../lib/auth.js";
 import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/enrollment.js";
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
 import { submitDay } from "../lib/submit.js";
@@ -54,18 +58,61 @@ const primaryBtn = {
 const ghostBtn = { ...primaryBtn, background: "transparent", border: BORDER, color: "#F5F5F7" };
 const label = { fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6B7280" };
 
+// Password field with a show/hide toggle so users can see what they type.
+function PasswordInput({ value, onChange, placeholder = "Password" }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div style={{ position: "relative", marginBottom: 12 }}>
+      <input
+        style={{ ...input, marginBottom: 0, paddingRight: 44 }}
+        type={show ? "text" : "password"}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+      />
+      <button
+        type="button"
+        onClick={() => setShow(!show)}
+        aria-label={show ? "Hide password" : "Show password"}
+        title={show ? "Hide password" : "Show password"}
+        style={{
+          position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+          background: "none", border: "none", color: "#9CA3AF", cursor: "pointer",
+          padding: 4, display: "flex", alignItems: "center", fontFamily: "inherit",
+        }}
+      >
+        {show ? <EyeOff size={16} /> : <Eye size={16} />}
+      </button>
+    </div>
+  );
+}
+
 function AuthCard() {
-  const [mode, setMode] = useState("signin");
+  const [mode, setMode] = useState("signin"); // signin | signup | forgot
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  const switchMode = (m) => { setMode(m); setError(""); setNotice(""); };
+
   const submit = async () => {
     setError("");
     setNotice("");
     if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Enter a valid email.");
+    if (mode === "forgot") {
+      setBusy(true);
+      try {
+        await requestPasswordReset(email);
+        setNotice("Check your email for a password reset link.");
+      } catch (e) {
+        setError(e.message || "Could not send the reset email.");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
     if (password.length < 6) return setError("Password must be at least 6 characters.");
     setBusy(true);
     try {
@@ -86,24 +133,76 @@ function AuthCard() {
     <div style={card}>
       <span style={label}>NEXTGEN Academy</span>
       <h1 style={{ fontSize: 24, fontWeight: 600, margin: "10px 0 20px", letterSpacing: "-0.02em" }}>
-        {mode === "signup" ? "Create your account" : "Sign in"}
+        {mode === "signup" ? "Create your account" : mode === "forgot" ? "Reset your password" : "Sign in"}
       </h1>
+      {mode === "forgot" && (
+        <p style={{ fontSize: 13, color: "#9CA3AF", margin: "0 0 14px" }}>
+          Enter your account email and we'll send you a link to set a new password.
+        </p>
+      )}
       <input style={input} type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input style={input} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      {mode !== "forgot" && (
+        <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
+      )}
+      {mode === "signin" && (
+        <p style={{ margin: "0 0 12px", textAlign: "right" }}>
+          <button
+            onClick={() => switchMode("forgot")}
+            style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontSize: 13, fontFamily: "inherit", padding: 0 }}
+          >
+            Forgot password?
+          </button>
+        </p>
+      )}
       {error && <p style={{ color: "#F87171", fontSize: 13, marginBottom: 12 }}>{error}</p>}
       {notice && <p style={{ color: "#34D399", fontSize: 13, marginBottom: 12 }}>{notice}</p>}
       <button style={{ ...primaryBtn, width: "100%", opacity: busy ? 0.6 : 1 }} onClick={submit} disabled={busy}>
-        {busy ? "…" : mode === "signup" ? "Sign up" : "Sign in"}
+        {busy ? "…" : mode === "signup" ? "Sign up" : mode === "forgot" ? "Send reset link" : "Sign in"}
       </button>
       <p style={{ fontSize: 13, color: "#9CA3AF", marginTop: 16, textAlign: "center" }}>
-        {mode === "signup" ? "Already have an account?" : "New here?"}{" "}
+        {mode === "signup" ? "Already have an account?" : mode === "forgot" ? "Remembered it?" : "New here?"}{" "}
         <button
-          onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(""); setNotice(""); }}
+          onClick={() => switchMode(mode === "signin" ? "signup" : "signin")}
           style={{ background: "none", border: "none", color: "#A855F7", cursor: "pointer", fontSize: 13, fontFamily: "inherit" }}
         >
-          {mode === "signup" ? "Sign in" : "Create one"}
+          {mode === "signin" ? "Create one" : "Sign in"}
         </button>
       </p>
+    </div>
+  );
+}
+
+// Shown after arriving from a recovery email link (recovery session is active).
+function ResetPasswordCard({ onDone }) {
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const save = async () => {
+    setError("");
+    if (pw.length < 6) return setError("Password must be at least 6 characters.");
+    setBusy(true);
+    try {
+      await updatePassword(pw);
+      onDone();
+    } catch (e) {
+      setError(e.message || "Could not update the password.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div style={card}>
+      <span style={label}>NEXTGEN Academy</span>
+      <h1 style={{ fontSize: 24, fontWeight: 600, margin: "10px 0 20px", letterSpacing: "-0.02em" }}>
+        Set a new password
+      </h1>
+      <PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} placeholder="New password" />
+      {error && <p style={{ color: "#F87171", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+      <button style={{ ...primaryBtn, width: "100%", opacity: busy ? 0.6 : 1 }} onClick={save} disabled={busy}>
+        {busy ? "…" : "Save new password"}
+      </button>
     </div>
   );
 }
@@ -587,12 +686,23 @@ function Dashboard({ session }) {
   );
 }
 
+// Captured synchronously at module load, before the auth client consumes and
+// cleans the recovery hash from the URL.
+const startedInRecovery =
+  typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+
 export default function AcademyApp() {
   const [session, setSession] = useState(undefined); // undefined = loading
+  const [recovery, setRecovery] = useState(startedInRecovery);
 
   useEffect(() => {
     getSession().then(setSession);
-    return onAuthChange(setSession);
+    const offAuth = onAuthChange(setSession);
+    const offRecovery = onPasswordRecovery(() => setRecovery(true));
+    return () => {
+      offAuth();
+      offRecovery();
+    };
   }, []);
 
   if (session === undefined) {
@@ -605,7 +715,20 @@ export default function AcademyApp() {
         <img src="/logo.png" alt="" aria-hidden="true" style={{ height: 26, width: "auto" }} />
         <span style={{ fontWeight: 600, fontSize: 16, letterSpacing: "-0.02em", color: "#F5F5F7" }}>NEXTGEN Academy</span>
       </a>
-      {session ? <Dashboard session={session} /> : <AuthCard />}
+      {session ? (
+        recovery ? (
+          <ResetPasswordCard
+            onDone={() => {
+              setRecovery(false);
+              window.location.hash = "#/learn";
+            }}
+          />
+        ) : (
+          <Dashboard session={session} />
+        )
+      ) : (
+        <AuthCard />
+      )}
     </div>
   );
 }
