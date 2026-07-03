@@ -69,45 +69,48 @@ export function VipSection() {
         building real things with AI. limited seats, everyone starts together.
       </p>
 
-      <div className="mt-10 max-w-2xl rounded-xl border border-border">
+      {/* Card styled to match the Elite (recommended) pricing card: accent border,
+          accent pill, gradient price. */}
+      <div className="mt-10 max-w-2xl rounded-2xl border border-primary bg-background p-6 sm:p-8">
+        <span className="inline-flex rounded-full border border-primary px-3 py-1 text-xs font-medium text-primary">
+          limited seats
+        </span>
+
+        <div className="mt-5 flex items-baseline gap-2">
+          <span className="text-gradient text-4xl font-semibold">$150</span>
+          <span className="text-sm text-muted-foreground">one-time · 8 weeks · 8 seats per intake</span>
+        </div>
+        <p className="mt-3 text-sm text-foreground">{intakeLine}</p>
+
+        <div className="mt-6 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+          <a
+            href={waitlistMode ? waitlistUrl : checkoutUrl}
+            className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 motion-reduce:transition-none"
+          >
+            {waitlistMode ? "join the waitlist" : "reserve a seat"}
+          </a>
+          <a
+            href="#faq"
+            className="inline-flex min-h-[44px] items-center justify-center text-sm text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none"
+          >
+            questions? read the FAQ
+          </a>
+        </div>
+
         {/* feature rows, hairline dividers, no icon cards */}
-        <div className="divide-y divide-border px-6 sm:px-8">
+        <div className="mt-7 divide-y divide-border border-t border-border">
           {FEATURES.map((f) => (
-            <div key={f.title} className="py-5">
+            <div key={f.title} className="py-4">
               <h3 className="text-[15px] font-semibold text-foreground">{f.title}</h3>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* price + CTA */}
-        <div className="border-t border-border px-6 py-7 sm:px-8">
-          {/* accent use 1 of 2: the price */}
-          <div className="text-4xl font-semibold text-primary">$150</div>
-          <p className="mt-1 text-sm text-muted-foreground">one-time · 8 weeks · 8 seats per intake</p>
-          <p className="mt-3 text-sm text-foreground">{intakeLine}</p>
-
-          <div className="mt-6 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
-            {/* accent use 2 of 2: the primary CTA */}
-            <a
-              href={waitlistMode ? waitlistUrl : checkoutUrl}
-              className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 motion-reduce:transition-none sm:w-auto"
-            >
-              {waitlistMode ? "join the waitlist" : "reserve a seat"}
-            </a>
-            <a
-              href="#faq"
-              className="inline-flex min-h-[44px] items-center justify-center text-sm text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none"
-            >
-              questions? read the FAQ
-            </a>
-          </div>
-
-          <p className="mt-5 text-[13px] leading-relaxed text-muted-foreground">
-            VIP is paid access to direct guidance. Elite is different — it's earned through
-            contribution and can't be bought.
-          </p>
-        </div>
+        <p className="mt-5 text-[13px] leading-relaxed text-muted-foreground">
+          VIP is paid access to direct guidance. Elite is different — it's earned through
+          contribution and can't be bought.
+        </p>
       </div>
     </section>
   );
