@@ -8,6 +8,9 @@ import { WhatYouGet } from "./components/ui/what-you-get";
 import { Testimonials } from "./components/ui/testimonials";
 import GeometricBackground from "./components/ui/geometric";
 import { VipSection } from "./components/VipSection";
+import { TrustStrip } from "./components/TrustStrip";
+import { HowItWorksSection } from "./components/HowItWorksSection";
+import { CommunityShowcase } from "./components/CommunityShowcase";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -42,14 +45,6 @@ const AI_PATHS = [
   { name: "Advanced", blurb: "Already working with AI. Push to expert and Grandmaster level.", days: 30 },
 ];
 const TIERS = ["Basic", "Pro", "Expert", "Grandmaster"];
-
-const LOOP_STEPS = [
-  { n: "01", title: "Learn", desc: "Each day opens with one clear objective and a focused lesson — what to learn today, no filler." },
-  { n: "02", title: "Improve", desc: "A specific skill focus pushes you to get better at one thing that compounds over the path." },
-  { n: "03", title: "Assignment", desc: "Apply it the same day. Every day ends with real work, not passive watching." },
-  { n: "04", title: "Score", desc: "Your work is scored against a clear rubric, with an auto-graded check to confirm you have it." },
-];
-
 
 const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
@@ -375,35 +370,6 @@ function Tracks() {
   );
 }
 
-function HowItWorks() {
-  return (
-    <Section id="how" alt>
-      <FadeUp>
-        <p style={{ ...eyebrow, marginBottom: 14 }}>How it works</p>
-        <h2 style={{ ...h2, marginBottom: 52, maxWidth: 620 }}>One simple loop, every single day.</h2>
-      </FadeUp>
-      <div className="ng-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 0 }}>
-        {LOOP_STEPS.map((s, i) => (
-          <FadeUp key={s.n} delay={i * 70}>
-            <div
-              style={{
-                padding: "0 28px",
-                borderLeft: i === 0 ? "none" : HAIR,
-                height: "100%",
-              }}
-              className="ng-loop-cell"
-            >
-              <div style={{ fontSize: 13, fontWeight: 600, color: CORAL, marginBottom: 16, fontVariantNumeric: "tabular-nums" }}>{s.n}</div>
-              <h3 style={{ fontSize: 19, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>{s.title}</h3>
-              <p style={{ fontSize: 14.5, lineHeight: 1.6, color: MUTED, margin: 0 }}>{s.desc}</p>
-            </div>
-          </FadeUp>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
 // Social proof: exactly two real figures, stated separately (never summed).
 // Primary "400+ builders" lives here next to the Join CTA; secondary "500+ on X"
 // is in the footer. No other stats, percentages, earnings, or counters.
@@ -569,6 +535,17 @@ function Faq() {
 }
 
 export default function Landing() {
+  // Scroll to an in-page anchor on first mount when arriving from a different
+  // top-level app (e.g. the Prompts library's "how do I become Elite?" link,
+  // which sets the hash to #plans before this component exists). Plain
+  // in-page anchor clicks already work natively once Landing is mounted.
+  useEffect(() => {
+    const id = window.location.hash.replace(/^#/, "");
+    if (!id || id.startsWith("/")) return;
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <GeometricBackground>
       <div
@@ -593,8 +570,6 @@ export default function Landing() {
           .ng-hero-visual{height:360px !important;min-height:360px !important;opacity:0.9 !important}
           .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
-          .ng-grid-4{grid-template-columns:1fr !important}
-          .ng-loop-cell{border-left:none !important;border-top:1px solid rgba(255,255,255,0.08);padding:24px 0 !important}
           .ng-plan-head,.ng-plan-row{grid-template-columns:1fr 56px 56px !important}
           .ng-section{padding:68px 0 !important}
           .ng-hero{padding-top:118px !important;padding-bottom:72px !important}
@@ -603,9 +578,11 @@ export default function Landing() {
       `}</style>
       <Navbar />
       <Hero />
-      <WhatYouGet />
+      <TrustStrip />
+      <HowItWorksSection />
       <Tracks />
-      <HowItWorks />
+      <WhatYouGet />
+      <CommunityShowcase />
       <Community />
       <Testimonials />
       <Plans />

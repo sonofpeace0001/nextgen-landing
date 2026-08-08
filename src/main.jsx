@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import Landing from "./Landing.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
+import PromptsApp from "./prompts/PromptsApp.jsx";
 // Self-hosted fonts (Inter for body/UI, Space Grotesk for headings).
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
@@ -19,7 +20,8 @@ const arrivedFromRecovery =
   typeof window !== "undefined" && window.location.hash.includes("type=recovery");
 
 // Lightweight hash routing (no router dep, matching the site's hash-anchor style):
-// #/learn -> the Academy learning app; everything else -> the marketing page.
+// #/learn -> the Academy learning app; #/prompts -> the Elite Prompt Library;
+// everything else -> the marketing page.
 function Root() {
   const [hash, setHash] = useState(typeof window !== "undefined" ? window.location.hash : "");
   useEffect(() => {
@@ -29,6 +31,7 @@ function Root() {
   }, []);
   if (hash.startsWith("#/admin")) return <AdminApp />;
   if (arrivedFromRecovery) return <AcademyApp />;
+  if (hash.startsWith("#/prompts")) return <PromptsApp />;
   return hash.startsWith("#/learn") ? <AcademyApp /> : <Landing />;
 }
 

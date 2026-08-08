@@ -41,3 +41,30 @@ needed — the site reads them on page load. Keys:
 
 The browser has read-only access (RLS: SELECT for anon only); writes happen only
 through the dashboard.
+
+## Elite Prompt Library
+
+`/#/prompts` is a members perk: a code-gated library of prompts. There is no
+admin UI for it by design — everything is edited in Supabase Studio.
+
+**Access code** — also a `site_settings` row, same table as VIP above:
+
+| key | valid values |
+| --- | --- |
+| `elite_prompt_code` | any text string. Members type this to unlock the library for their browser session. Rotate it any time from Studio — no deploy needed. |
+
+The code check is light gating for a members perk, not a security boundary —
+the prompt tables are already world-readable (see below), and the code just
+decides whether the library UI shows in that browser tab. It is remembered in
+`sessionStorage` only, so it re-locks when the tab is closed.
+
+**Content** — three tables, edited directly in Studio → Table editor:
+
+| table | purpose |
+| --- | --- |
+| `prompt_categories` | top-level sections (Writing, Image, Video, …). `sort_order` controls display order. |
+| `prompt_subcategories` | sub-sections within a category, linked by `category_id`. |
+| `prompts` | the actual prompts, linked by `subcategory_id`. `difficulty` must be `beginner`, `intermediate`, or `advanced`. |
+
+All three are anon-readable (RLS SELECT policy) with no write policies — add,
+edit, or remove prompts only from the dashboard (service role).
