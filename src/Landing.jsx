@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Flame, BadgeCheck } from "lucide-react";
 import { SplineScene } from "./components/SplineScene";
 import { PricingTable } from "./components/ui/pricing-table";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
@@ -40,7 +41,7 @@ const HAS_REAL_SCENE = SCENE_URL !== "PASTE_YOUR_SPLINE_SCENE_URL_HERE";
 // One focus: AI. Three entry points by experience, each running the full ladder
 // from Basic to Grandmaster.
 const AI_PATHS = [
-  { name: "Novice", blurb: "New to AI. Start from your first prompt and build real skills from zero.", days: 90 },
+  { name: "Novice", blurb: "New to AI. Start from your first prompt and build real skills from zero.", days: 90, featured: true },
   { name: "Intermediate", blurb: "You know the basics. Go deeper into real AI work you can show.", days: 60 },
   { name: "Advanced", blurb: "Already working with AI. Push to expert and Grandmaster level.", days: 30 },
 ];
@@ -275,8 +276,57 @@ function Hero() {
               </a>
             </div>
           </div>
-          <div className="ng-hero-visual-wrap" style={{ ...item(140) }}>
+          <div className="ng-hero-visual-wrap" style={{ position: "relative", ...item(140) }}>
             <HeroVisual />
+            {/* Small floating info chips, desktop only — decorative, echo real
+                product mechanics (streak, auto-grading) without competing with
+                the 3D scene or the headline. */}
+            <div
+              className="ng-hero-chip"
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: -18,
+                right: 8,
+                zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "10px 14px",
+                borderRadius: 12,
+                border: HAIR,
+                background: "rgba(18,10,36,0.85)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+                ...item(320),
+              }}
+            >
+              <Flame size={16} style={{ color: VIOLET }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>6-day streak</span>
+            </div>
+            <div
+              className="ng-hero-chip"
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                bottom: -14,
+                left: 4,
+                zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "10px 14px",
+                borderRadius: 12,
+                border: HAIR,
+                background: "rgba(18,10,36,0.85)",
+                backdropFilter: "blur(10px)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+                ...item(380),
+              }}
+            >
+              <BadgeCheck size={16} style={{ color: VIOLET }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>Auto-graded, every day</span>
+            </div>
           </div>
         </div>
       </div>
@@ -317,15 +367,34 @@ function Tracks() {
           <FadeUp key={p.name} delay={i * 70}>
             <div
               style={{
-                border: HAIR,
+                position: "relative",
+                border: p.featured ? `1px solid ${VIOLET}` : HAIR,
                 borderRadius: 14,
                 padding: 28,
                 height: "100%",
-                background: "rgba(255,255,255,0.015)",
+                background: p.featured ? "rgba(124,58,237,0.07)" : "rgba(255,255,255,0.015)",
                 display: "flex",
                 flexDirection: "column",
               }}
             >
+              {p.featured && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -12,
+                    left: 24,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    color: "#fff",
+                    background: VIOLET,
+                    borderRadius: 999,
+                    padding: "4px 12px",
+                  }}
+                >
+                  RECOMMENDED
+                </span>
+              )}
               <h3 style={{ fontFamily: "'Space Grotesk','Inter',sans-serif", fontSize: 24, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
                 {p.name}
               </h3>
@@ -355,13 +424,35 @@ function Tracks() {
                 <span style={{ color: TEXT, fontWeight: 600 }}>{p.days} days</span>
               </div>
 
-              <a
-                href={LEARN}
-                style={{ display: "inline-flex", alignItems: "center", gap: 7, color: TEXT, fontSize: 14, fontWeight: 600, textDecoration: "none" }}
-              >
-                Start {p.name}
-                <span style={{ color: CORAL }}>→</span>
-              </a>
+              {p.featured ? (
+                <a
+                  href={LEARN}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 7,
+                    background: VIOLET,
+                    color: "#fff",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    borderRadius: 10,
+                    padding: "11px 18px",
+                  }}
+                >
+                  Start {p.name}
+                  <span>→</span>
+                </a>
+              ) : (
+                <a
+                  href={LEARN}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 7, color: TEXT, fontSize: 14, fontWeight: 600, textDecoration: "none" }}
+                >
+                  Start {p.name}
+                  <span style={{ color: CORAL }}>→</span>
+                </a>
+              )}
             </div>
           </FadeUp>
         ))}
@@ -568,6 +659,7 @@ export default function Landing() {
           .ng-burger{display:block !important}
           .ng-hero-grid{grid-template-columns:1fr !important;gap:24px !important}
           .ng-hero-visual{height:360px !important;min-height:360px !important;opacity:0.9 !important}
+          .ng-hero-chip{display:none !important}
           .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-plan-head,.ng-plan-row{grid-template-columns:1fr 56px 56px !important}
