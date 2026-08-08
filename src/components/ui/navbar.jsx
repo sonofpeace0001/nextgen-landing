@@ -7,9 +7,18 @@ const NAV_LINKS = [
   { label: "What is NEXTGEN", href: "#how" },
   { label: "Learning Paths", href: "#tracks" },
   { label: "Elite", href: "#plans" },
+  { label: "Prompts", href: "#/prompts", badge: "Elite" },
   { label: "VIP", href: "#vip" },
   { label: "FAQ", href: "#faq" },
 ];
+
+function NavBadge({ text }) {
+  return (
+    <span className="ml-1.5 rounded border border-border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {text}
+    </span>
+  );
+}
 
 // TODO: point these at the real auth / signup routes if they differ.
 const LOGIN_HREF = "#/learn";
@@ -67,9 +76,10 @@ export function Navbar() {
             <a
               key={link.label}
               href={link.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none"
+              className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none"
             >
               {link.label}
+              {link.badge && <NavBadge text={link.badge} />}
             </a>
           ))}
         </div>
@@ -117,6 +127,7 @@ export function Navbar() {
               className="flex min-h-[44px] items-center border-b border-border text-base text-foreground"
             >
               {link.label}
+              {link.badge && <NavBadge text={link.badge} />}
             </a>
           ))}
           <div className="mt-6 flex flex-col gap-3">
