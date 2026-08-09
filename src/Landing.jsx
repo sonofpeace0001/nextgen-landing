@@ -161,7 +161,7 @@ const eyebrow = {
   fontWeight: 500,
 };
 const h2 = {
-  fontFamily: "'Space Grotesk','Inter',sans-serif",
+  fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
   fontSize: "clamp(28px,3.4vw,40px)",
   fontWeight: 600,
   letterSpacing: "-0.02em",
@@ -246,7 +246,7 @@ function Hero() {
             <p style={{ ...eyebrow, marginBottom: 26, ...item(0) }}>Beginner-friendly AI community</p>
             <h1
               style={{
-                fontFamily: "'Space Grotesk','Inter',sans-serif",
+                fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
                 fontSize: "clamp(40px,6.2vw,72px)",
                 fontWeight: 600,
                 lineHeight: 1.05,
@@ -395,7 +395,7 @@ function Tracks() {
                   RECOMMENDED
                 </span>
               )}
-              <h3 style={{ fontFamily: "'Space Grotesk','Inter',sans-serif", fontSize: 24, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
+              <h3 style={{ fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif", fontSize: 24, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
                 {p.name}
               </h3>
               <p style={{ fontSize: 15, lineHeight: 1.6, color: MUTED, margin: "0 0 24px", flex: 1 }}>{p.blurb}</p>
@@ -487,7 +487,7 @@ function Community() {
           <div style={{ marginBottom: 26 }}>
             <span
               style={{
-                fontFamily: "'Space Grotesk','Inter',sans-serif",
+                fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
                 fontSize: 48,
                 fontWeight: 600,
                 color: VIOLET,
@@ -501,7 +501,7 @@ function Community() {
           <p style={{ ...eyebrow, marginBottom: 8 }}>Founder</p>
           <h3
             style={{
-              fontFamily: "'Space Grotesk','Inter',sans-serif",
+              fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
               fontSize: 26,
               fontWeight: 600,
               color: TEXT,
@@ -644,7 +644,7 @@ export default function Landing() {
         style={{
           minHeight: "100vh",
           color: TEXT,
-          fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
+          fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
           overflowX: "hidden",
         }}
       >

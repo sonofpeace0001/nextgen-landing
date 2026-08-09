@@ -5,7 +5,7 @@ import { getMyProfile } from "../lib/profile.js";
 import { adminApi } from "../lib/admin.js";
 
 const BORDER = "1px solid rgba(255,255,255,0.08)";
-const wrap = { minHeight: "100vh", background: "#0A0A0C", color: "#F5F5F7", fontFamily: "'Inter',system-ui,sans-serif", padding: "40px 20px" };
+const wrap = { minHeight: "100vh", background: "#0A0A0C", color: "#F5F5F7", fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif", padding: "40px 20px" };
 const shell = { maxWidth: 920, margin: "0 auto" };
 const card = { border: BORDER, borderRadius: 12, padding: 20, background: "#0E0E12" };
 const input = { padding: "9px 12px", borderRadius: 8, border: BORDER, background: "#0A0A0C", color: "#F5F5F7", fontSize: 14, fontFamily: "inherit" };
@@ -234,7 +234,7 @@ function Dashboard({ email }) {
     <div style={shell}>
       <style>{`@media(max-width:760px){.admin-2col{grid-template-columns:1fr !important}}`}</style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <span style={{ fontFamily: "'Space Grotesk','Inter',sans-serif", fontWeight: 600, fontSize: 18 }}>NEXTGEN Admin</span>
+        <span style={{ fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif", fontWeight: 600, fontSize: 18 }}>NEXTGEN Admin</span>
         <span style={{ fontSize: 13, color: "#9CA3AF" }}>{email} · <button style={{ background: "none", border: "none", color: "#9CA3AF", cursor: "pointer", fontFamily: "inherit", textDecoration: "underline" }} onClick={() => signOut()}>sign out</button></span>
       </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 20, borderBottom: BORDER, paddingBottom: 0 }}>

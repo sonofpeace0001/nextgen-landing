@@ -15,8 +15,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        heading: ['"Space Grotesk"', "Inter", "sans-serif"],
+        sans: ['"Geist Sans"', "system-ui", "-apple-system", "sans-serif"],
+        heading: ['"Geist Sans"', "system-ui", "-apple-system", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

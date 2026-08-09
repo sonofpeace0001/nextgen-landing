@@ -25,7 +25,7 @@ const wrap = {
   minHeight: "100vh",
   background: "#0A0A0C",
   color: "#F5F5F7",
-  fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
+  fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
