@@ -4,13 +4,13 @@ import Landing from "./Landing.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
 import PromptsApp from "./prompts/PromptsApp.jsx";
-// Self-hosted fonts (Inter for body/UI, Space Grotesk for headings).
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/600.css";
-import "@fontsource/space-grotesk/500.css";
-import "@fontsource/space-grotesk/600.css";
-import "@fontsource/space-grotesk/700.css";
+// Self-hosted font: Geist Sans, used for both body/UI and headings (free/open,
+// SIL licensed — one clean typeface throughout, the look most modern SaaS
+// sites — Stripe included — reach for instead of a paid display font).
+import "@fontsource/geist-sans/400.css";
+import "@fontsource/geist-sans/500.css";
+import "@fontsource/geist-sans/600.css";
+import "@fontsource/geist-sans/700.css";
 import "./index.css";
 
 // Password-recovery links from Supabase land on the site root with a token in
