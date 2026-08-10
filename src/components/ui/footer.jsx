@@ -86,7 +86,12 @@ export function Footer() {
 
         {/* Bottom row */}
         <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-muted-foreground">© {year} NEXTGEN</p>
+          <p className="text-sm text-muted-foreground">
+            © {year} NEXTGEN{" "}
+            <a href="#/admin" className="text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none">
+              · Admin
+            </a>
+          </p>
           <div className="flex items-center gap-4">
             <a
               href={DISCORD_URL}

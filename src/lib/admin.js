@@ -23,4 +23,7 @@ export const adminApi = {
   // review queue
   listReviewQueue: () => call("review.list"),
   scoreSubmission: (submission_id, score, feedback) => call("review.score", { submission_id, score, feedback }),
+  // settings
+  getSettings: () => call("settings.get"),
+  updateSetting: (key, value) => call("settings.update", { key, value }),
 };
