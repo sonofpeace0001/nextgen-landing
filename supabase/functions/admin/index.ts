@@ -13,6 +13,8 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+const SETTINGS_KEYS = ["elite_prompt_code", "vip_intake_date", "vip_seats_left", "vip_checkout_url", "vip_waitlist_url"];
+
 const ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no ambiguous chars
 function genCode(len = 8) {
   const bytes = new Uint8Array(len);
@@ -137,6 +139,19 @@ Deno.serve(async (req) => {
           .single();
         if (error) throw error;
         return json({ submission: data });
+      }
+
+      // ── Settings ──
+      case "settings.get": {
+        const { data, error } = await db.from("site_settings").select("key, value").in("key", SETTINGS_KEYS);
+        if (error) throw error;
+        return json({ settings: data });
+      }
+      case "settings.update": {
+        if (!SETTINGS_KEYS.includes(payload.key)) return json({ error: `Unknown setting key: ${payload.key}` }, 400);
+        const { error } = await db.from("site_settings").update({ value: String(payload.value ?? "") }).eq("key", payload.key);
+        if (error) throw error;
+        return json({ ok: true });
       }
 
       default:

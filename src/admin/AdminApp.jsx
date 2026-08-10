@@ -220,11 +220,70 @@ function ReviewTab() {
   );
 }
 
+const SETTINGS_FIELDS = [
+  { key: "vip_intake_date", label: "VIP cohort intake date", hint: 'e.g. "March 3", or "TBA" to show the waitlist instead of checkout' },
+  { key: "elite_prompt_code", label: "Elite prompt library code", hint: "the code Elite members enter to unlock the prompt library" },
+];
+
+function SettingsTab() {
+  const { data, error, reload } = useAsync(() => adminApi.getSettings(), []);
+  const [drafts, setDrafts] = useState({});
+  const [busyKey, setBusyKey] = useState("");
+  const [err, setErr] = useState("");
+  const [savedKey, setSavedKey] = useState("");
+
+  const valueByKey = {};
+  for (const s of data?.settings ?? []) valueByKey[s.key] = s.value;
+
+  const save = async (key) => {
+    setErr(""); setSavedKey(""); setBusyKey(key);
+    try {
+      await adminApi.updateSetting(key, drafts[key] ?? valueByKey[key] ?? "");
+      setSavedKey(key);
+      reload();
+    } catch (e) { setErr(e.message); }
+    finally { setBusyKey(""); }
+  };
+
+  return (
+    <div style={card}>
+      {(err || error) && <p style={errStyle}>{err || error}</p>}
+      {SETTINGS_FIELDS.map((f) => {
+        const current = drafts[f.key] ?? valueByKey[f.key] ?? "";
+        const dirty = f.key in drafts && drafts[f.key] !== (valueByKey[f.key] ?? "");
+        return (
+          <div key={f.key} style={{ marginBottom: 18 }}>
+            <label style={{ fontSize: 12, color: "#9CA3AF", display: "block", marginBottom: 4 }}>{f.label}</label>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <input
+                style={{ ...input, flex: 1, minWidth: 220 }}
+                value={current}
+                onChange={(e) => setDrafts((d) => ({ ...d, [f.key]: e.target.value }))}
+              />
+              <button
+                style={{ ...btn, opacity: dirty && busyKey !== f.key ? 1 : 0.5 }}
+                disabled={!dirty || busyKey === f.key}
+                onClick={() => save(f.key)}
+              >
+                {busyKey === f.key ? "…" : "Save"}
+              </button>
+            </div>
+            <p style={{ fontSize: 12, color: "#6B7280", marginTop: 4 }}>
+              {f.hint}{savedKey === f.key && <span style={{ color: "#34D399" }}> · saved</span>}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const TABS = [
   { key: "codes", label: "Codes", el: CodesTab },
   { key: "members", label: "Members", el: MembersTab },
   { key: "content", label: "Content", el: ContentTab },
   { key: "review", label: "Review", el: ReviewTab },
+  { key: "settings", label: "Settings", el: SettingsTab },
 ];
 
 function Dashboard({ email }) {

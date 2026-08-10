@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { fetchSiteSettings } from "@/lib/settings";
 
+// Same invite used elsewhere on the site (Landing.jsx / footer.jsx / CommunityShowcase.jsx).
+const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
+
 // ── editable values ──────────────────────────────────────────────────────────
 // These four are FALLBACKS only. The live values come from Supabase
 // (Studio -> Table editor -> site_settings) and can be changed without a
@@ -96,6 +99,21 @@ export function VipSection() {
             questions? read the FAQ
           </a>
         </div>
+
+        {!waitlistMode && (
+          <p className="mt-4 text-[13px] leading-relaxed text-muted-foreground">
+            After paying,{" "}
+            <a
+              href={DISCORD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              join our Discord
+            </a>{" "}
+            and open a ticket with proof of payment to complete verification.
+          </p>
+        )}
 
         {/* feature rows, hairline dividers, no icon cards */}
         <div className="mt-7 divide-y divide-border border-t border-border">
