@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0A0A0C" />
+    <script>
+      (function () {
+        var saved = localStorage.getItem("ng-theme");
+        var theme = saved || (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        if (theme === "light") document.documentElement.dataset.theme = "light";
+      })();
+    </script>
 
     <!-- Fonts are self-hosted via @fontsource (imported in src/main.jsx). -->
     <!-- Warm the connection to the Spline CDN so the hero 3D scene starts sooner -->

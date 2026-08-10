@@ -20,13 +20,13 @@ import { CommunityShowcase } from "./components/CommunityShowcase";
    The purple→coral gradient appears on exactly ONE element: the H1.
    ───────────────────────────────────────────────────────────── */
 
-const VIOLET = "#7C3AED";
+const VIOLET = "var(--primary)";
 const CORAL = "#EB97A0";
-const TEXT = "#ECE8F5";
-const MUTED = "#9B8FC0";
-const HAIR = "1px solid rgba(255,255,255,0.08)";
-const SURFACE = "rgba(255,255,255,0.025)";
-const H1_GRADIENT = "linear-gradient(105deg, #7C3AED 0%, #7C3AED 46%, #EB97A0 100%)";
+const TEXT = "var(--foreground)";
+const MUTED = "var(--muted-foreground)";
+const HAIR = "1px solid var(--border)";
+const SURFACE = "color-mix(in srgb, var(--foreground) 2.5%, transparent)";
+const H1_GRADIENT = "linear-gradient(105deg, var(--primary) 0%, var(--primary) 46%, #EB97A0 100%)";
 
 const X_URL = "https://x.com/G_NEXTGEN";
 const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
@@ -372,7 +372,7 @@ function Tracks() {
                 borderRadius: 14,
                 padding: 28,
                 height: "100%",
-                background: p.featured ? "rgba(124,58,237,0.07)" : "rgba(255,255,255,0.015)",
+                background: p.featured ? "color-mix(in srgb, var(--primary) 7%, transparent)" : SURFACE,
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -651,7 +651,7 @@ export default function Landing() {
       <style>{`
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        a:hover{color:#ECE8F5}
+        a:hover{color:var(--foreground)}
         .ng-spline{width:100% !important;height:100% !important;display:block !important}
         .ng-spline canvas{width:100% !important;height:100% !important;display:block !important}
         @media (max-width:820px){

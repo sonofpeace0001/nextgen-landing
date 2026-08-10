@@ -2,8 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens. Dark-only for now, light-ready later: swapping these values
-   (and adding a [data-theme="light"] block) is the one-file change to light mode.
+/* Design tokens. Dark by default; [data-theme="light"] overrides below.
    Never hardcode #000/#fff/purple in components — use these tokens. */
 :root {
   --background: #0a0a0c;
@@ -15,6 +14,18 @@
   --accent-from: #e27fe0;
   --accent-via: #a855f7;
   --accent-to: #7c3aed;
+}
+
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #18181b;
+  --muted-foreground: #6b7280;
+  --border: rgba(0, 0, 0, 0.09);
+  --primary: #9333ea;
+  --primary-foreground: #ffffff;
+  --accent-from: #c026d3;
+  --accent-via: #9333ea;
+  --accent-to: #6d28d9;
 }
 
 html,
