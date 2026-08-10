@@ -5,14 +5,10 @@ import { ArrowRight } from "lucide-react";
 // not a new link.
 const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
 
-// A real screenshot can still be dropped in later at public/community.png (a
-// daily prompt + replies from the NEXTGEN Discord) and it will be used
-// automatically. Until then — and to avoid publishing real members' names and
-// avatars without a deliberate, separate okay — an illustrative, generic mock
-// of the chat renders instead. Not a real screenshot, and it doesn't claim to
-// be one; captures the same daily-prompt-and-replies feel without using any
-// specific person's identity.
-const SCREENSHOT_SRC = "/community.png";
+// Real screenshot from the NEXTGEN Discord, member usernames/avatars redacted
+// (generic "Builder N" labels, blurred avatars) since those members did not
+// consent to being featured by name/photo in marketing material.
+const SCREENSHOT_SRC = "/community.jpg";
 
 const BENEFITS = [
   { title: "A question gets answered", desc: "ask anything, any level, no judgment." },
