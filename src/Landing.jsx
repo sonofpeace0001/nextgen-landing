@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Flame, BadgeCheck } from "lucide-react";
-import { SplineScene } from "./components/SplineScene";
 import { PricingTable } from "./components/ui/pricing-table";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
 import { Navbar } from "./components/ui/navbar";
@@ -32,12 +31,6 @@ const X_URL = "https://x.com/G_NEXTGEN";
 const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
 const LEARN = "#/learn";
 
-// Spline hero scene. Replace the placeholder with a real scene URL to enable the
-// 3D visual on desktop. While the placeholder is present, the static fallback
-// renders instead, so the build never depends on a live scene.
-const SCENE_URL = "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode";
-const HAS_REAL_SCENE = SCENE_URL !== "PASTE_YOUR_SPLINE_SCENE_URL_HERE";
-
 // One focus: AI. Three entry points by experience, each running the full ladder
 // from Basic to Grandmaster.
 const AI_PATHS = [
@@ -47,6 +40,26 @@ const AI_PATHS = [
 ];
 const TIERS = ["Basic", "Pro", "Expert", "Grandmaster"];
 
+// External partner resources, shown as link-out cards. First live card is the
+// Graphics Learning Academy; additional cards will be added here as more
+// partner resources launch.
+const PARTNER_RESOURCES = [
+  {
+    tag: "AI GRAPHIC DESIGN ACADEMY",
+    name: "NEXTGEN Graphics Learning Academy",
+    blurb: "A free, beginner-friendly course on AI graphic design — prompts, characters, campaigns and professional design principles.",
+    href: "https://next-gen-graphics-learning-academy.vercel.app/",
+    live: true,
+  },
+  {
+    tag: "MORE COMING SOON",
+    name: "New resource",
+    blurb: "Another partner resource is on the way. Check back soon.",
+    href: null,
+    live: false,
+  },
+];
+
 const FOUNDER_X_URL = "https://x.com/sonofpeace0001";
 
 const prefersReducedMotion =
@@ -54,74 +67,46 @@ const prefersReducedMotion =
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
     : false;
 
-// True only at the lg breakpoint and up. Used to keep the Spline runtime off
-// mobile entirely — the component never mounts below this width, so no 3D
-// payload loads on small screens.
-// Lightweight static visual for mobile, reduced-motion, and the
-// placeholder-scene case. Reuses the single brand accent gradient only — no new
-// color, no glow, no shadow, no second gradient.
-function HeroStaticVisual() {
+// Hero visual: the NEXTGEN character artwork. Replaces the earlier 3D Spline
+// robot scene with a static branded illustration — no lazy 3D chunk to load,
+// so the image just paints with the rest of the hero.
+function HeroVisual() {
   return (
     <div
-      aria-hidden="true"
+      className="ng-hero-visual"
       style={{
+        position: "relative",
         width: "100%",
-        height: "100%",
-        minHeight: 280,
+        height: 540,
+        minHeight: 540,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        pointerEvents: "none",
       }}
     >
       <div
-        style={{
-          width: "min(360px, 78%)",
-          aspectRatio: "1 / 1",
-          borderRadius: "50%",
-          background: H1_GRADIENT,
-          opacity: 0.42,
-        }}
-      />
-    </div>
-  );
-}
-
-// Decides what the hero's secondary slot shows. The 3D robot mounts on all screen
-// sizes when a real scene URL is set and reduced motion is off; otherwise it falls
-// back to the static visual. Kept at lower visual weight so the headline still
-// wins the squint test. (The ~2MB scene is lazy-loaded and cross-faded in, so text
-// paints first.)
-function HeroVisual() {
-  const useSpline = HAS_REAL_SCENE && !prefersReducedMotion;
-  const [sceneLoaded, setSceneLoaded] = useState(false);
-
-  if (!useSpline) {
-    return (
-      <div className="ng-hero-visual" style={{ position: "relative", width: "100%", height: 540, minHeight: 540, opacity: 0.95 }}>
-        <HeroStaticVisual />
-      </div>
-    );
-  }
-
-  return (
-    <div className="ng-hero-visual" style={{ position: "relative", width: "100%", height: 540, minHeight: 540, opacity: 0.95 }}>
-      {/* Branded placeholder, shown immediately while the 3D scene streams in */}
-      <div
+        aria-hidden="true"
         style={{
           position: "absolute",
           inset: 0,
-          opacity: sceneLoaded ? 0 : 1,
-          transition: "opacity .6s ease",
+          background: "radial-gradient(circle at 50% 40%, rgba(124,58,237,0.28), rgba(124,58,237,0) 70%)",
           pointerEvents: "none",
         }}
-      >
-        <HeroStaticVisual />
-      </div>
-      {/* The 3D scene, cross-faded in only once it has actually loaded */}
-      <div style={{ position: "absolute", inset: 0, opacity: sceneLoaded ? 1 : 0, transition: "opacity .9s ease" }}>
-        <SplineScene scene={SCENE_URL} className="ng-spline" onLoad={() => setSceneLoaded(true)} />
-      </div>
+      />
+      <img
+        src="/hero-character.png"
+        alt="NEXTGEN character — a young builder in branded gear, holding a notebook labeled Prompts, Ideas, Systems, Impact"
+        style={{
+          position: "relative",
+          zIndex: 1,
+          maxWidth: "100%",
+          height: "100%",
+          width: "auto",
+          margin: "0 auto",
+          objectFit: "contain",
+          filter: "drop-shadow(0 24px 48px rgba(0,0,0,0.45))",
+        }}
+      />
     </div>
   );
 }
@@ -161,7 +146,7 @@ const eyebrow = {
   fontWeight: 500,
 };
 const h2 = {
-  fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
+  fontFamily: "'Playfair Display',Georgia,serif",
   fontSize: "clamp(28px,3.4vw,40px)",
   fontWeight: 600,
   letterSpacing: "-0.02em",
@@ -246,7 +231,7 @@ function Hero() {
             <p style={{ ...eyebrow, marginBottom: 26, ...item(0) }}>Beginner-friendly AI community</p>
             <h1
               style={{
-                fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
+                fontFamily: "'Playfair Display',Georgia,serif",
                 fontSize: "clamp(40px,6.2vw,72px)",
                 fontWeight: 600,
                 lineHeight: 1.05,
@@ -395,7 +380,7 @@ function Tracks() {
                   RECOMMENDED
                 </span>
               )}
-              <h3 style={{ fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif", fontSize: 24, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
+              <h3 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 24, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
                 {p.name}
               </h3>
               <p style={{ fontSize: 15, lineHeight: 1.6, color: MUTED, margin: "0 0 24px", flex: 1 }}>{p.blurb}</p>
@@ -461,6 +446,81 @@ function Tracks() {
   );
 }
 
+// Partner resources: external link-out cards, starting with the AI Graphic
+// Design Academy. Built to grow — add more entries to PARTNER_RESOURCES and
+// this grid picks them up automatically.
+function Resources() {
+  return (
+    <Section id="resources" alt>
+      <FadeUp>
+        <p style={{ ...eyebrow, marginBottom: 14 }}>Partner resources</p>
+        <h2 style={{ ...h2, marginBottom: 12, maxWidth: 640 }}>Free resources to go deeper.</h2>
+        <p style={{ ...body, color: MUTED, maxWidth: 560, marginBottom: 52 }}>
+          Extra, free training from the NEXTGEN network — more cards land here as new resources ship.
+        </p>
+      </FadeUp>
+      <div className="ng-grid-3" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
+        {PARTNER_RESOURCES.map((r, i) => {
+          const CardTag = r.live ? "a" : "div";
+          return (
+            <FadeUp key={r.name} delay={i * 70}>
+              <CardTag
+                {...(r.live ? { href: r.href, target: "_blank", rel: "noopener noreferrer" } : {})}
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                  border: HAIR,
+                  borderRadius: 14,
+                  padding: 28,
+                  background: SURFACE,
+                  textDecoration: "none",
+                  color: "inherit",
+                  opacity: r.live ? 1 : 0.6,
+                  cursor: r.live ? "pointer" : "default",
+                  transition: "border-color .15s ease, transform .15s ease",
+                }}
+                onMouseEnter={(e) => r.live && (e.currentTarget.style.borderColor = VIOLET)}
+                onMouseLeave={(e) => r.live && (e.currentTarget.style.borderColor = "var(--border)")}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    alignSelf: "flex-start",
+                    fontFamily: "'Montserrat',system-ui,-apple-system,sans-serif",
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    color: r.live ? "#fff" : TEXT,
+                    background: r.live ? VIOLET : "transparent",
+                    border: r.live ? "none" : HAIR,
+                    borderRadius: 999,
+                    padding: "5px 12px",
+                    marginBottom: 18,
+                  }}
+                >
+                  {r.tag}
+                </span>
+                <h3 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 22, fontWeight: 600, color: TEXT, margin: "0 0 10px" }}>
+                  {r.name}
+                </h3>
+                <p style={{ fontSize: 15, lineHeight: 1.6, color: MUTED, margin: "0 0 24px", flex: 1 }}>{r.blurb}</p>
+                {r.live && (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7, color: TEXT, fontSize: 14, fontWeight: 600 }}>
+                    Visit the academy
+                    <span style={{ color: CORAL }}>→</span>
+                  </span>
+                )}
+              </CardTag>
+            </FadeUp>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
+
 // Social proof: exactly two real figures, stated separately (never summed).
 // Primary "400+ builders" lives here next to the Join CTA; secondary "500+ on X"
 // is in the footer. No other stats, percentages, earnings, or counters.
@@ -487,7 +547,7 @@ function Community() {
           <div style={{ marginBottom: 26 }}>
             <span
               style={{
-                fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
+                fontFamily: "'Montserrat',system-ui,-apple-system,sans-serif",
                 fontSize: 48,
                 fontWeight: 600,
                 color: VIOLET,
@@ -501,7 +561,7 @@ function Community() {
           <p style={{ ...eyebrow, marginBottom: 8 }}>Founder</p>
           <h3
             style={{
-              fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
+              fontFamily: "'Playfair Display',Georgia,serif",
               fontSize: 26,
               fontWeight: 600,
               color: TEXT,
@@ -644,7 +704,7 @@ export default function Landing() {
         style={{
           minHeight: "100vh",
           color: TEXT,
-          fontFamily: "'Geist Sans',system-ui,-apple-system,sans-serif",
+          fontFamily: "'Inter',system-ui,-apple-system,sans-serif",
           overflowX: "hidden",
         }}
       >
@@ -673,6 +733,7 @@ export default function Landing() {
       <TrustStrip />
       <HowItWorksSection />
       <Tracks />
+      <Resources />
       <WhatYouGet />
       <CommunityShowcase />
       <Community />
