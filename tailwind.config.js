@@ -15,8 +15,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Geist Sans"', "system-ui", "-apple-system", "sans-serif"],
-        heading: ['"Geist Sans"', "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        heading: ['"Playfair Display"', "Georgia", "serif"],
+        accent: ["Montserrat", "system-ui", "-apple-system", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
