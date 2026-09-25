@@ -64,8 +64,8 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        // Solid background at all times so page content never shows through / overlaps the bar.
-        "fixed inset-x-0 top-0 z-50 border-b bg-background transition-colors duration-200 motion-reduce:transition-none",
+        // Frosted glass: content blurs behind the bar instead of overlapping it.
+        "fixed inset-x-0 top-0 z-50 border-b bg-[color-mix(in_srgb,var(--background)_82%,transparent)] backdrop-blur-xl transition-colors duration-200 motion-reduce:transition-none",
         scrolled ? "border-border" : "border-transparent",
       )}
     >

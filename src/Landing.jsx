@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Flame, BadgeCheck } from "lucide-react";
 import { PricingTable } from "./components/ui/pricing-table";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
 import { Navbar } from "./components/ui/navbar";
 import { Footer } from "./components/ui/footer";
 import { WhatYouGet } from "./components/ui/what-you-get";
 import { Testimonials } from "./components/ui/testimonials";
-import GeometricBackground from "./components/ui/geometric";
+import { Hero } from "./components/Hero";
 import { VipSection } from "./components/VipSection";
 import { TrustStrip } from "./components/TrustStrip";
 import { HowItWorksSection } from "./components/HowItWorksSection";
@@ -66,50 +65,6 @@ const prefersReducedMotion =
   typeof window !== "undefined" && window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
     : false;
-
-// Hero visual: the NEXTGEN character artwork. Replaces the earlier 3D Spline
-// robot scene with a static branded illustration — no lazy 3D chunk to load,
-// so the image just paints with the rest of the hero.
-function HeroVisual() {
-  return (
-    <div
-      className="ng-hero-visual"
-      style={{
-        position: "relative",
-        width: "100%",
-        height: 540,
-        minHeight: 540,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "radial-gradient(circle at 50% 40%, rgba(124,58,237,0.28), rgba(124,58,237,0) 70%)",
-          pointerEvents: "none",
-        }}
-      />
-      <img
-        src="/hero-character.png"
-        alt="NEXTGEN character — a young builder in branded gear, holding a notebook labeled Prompts, Ideas, Systems, Impact"
-        style={{
-          position: "relative",
-          zIndex: 1,
-          maxWidth: "100%",
-          height: "100%",
-          width: "auto",
-          margin: "0 auto",
-          objectFit: "contain",
-          filter: "drop-shadow(0 24px 48px rgba(0,0,0,0.45))",
-        }}
-      />
-    </div>
-  );
-}
 
 function FadeUp({ children, delay = 0, as: Tag = "div", style }) {
   const ref = useRef(null);
@@ -193,132 +148,6 @@ function XIcon({ size = 16 }) {
     </svg>
   );
 }
-function Hero() {
-  const [seen, setSeen] = useState(prefersReducedMotion);
-  useEffect(() => {
-    const t = setTimeout(() => setSeen(true), 60);
-    return () => clearTimeout(t);
-  }, []);
-  const item = (d) =>
-    prefersReducedMotion
-      ? {}
-      : {
-          opacity: seen ? 1 : 0,
-          transform: seen ? "none" : "translateY(12px)",
-          transition: `opacity .55s ease ${d}ms, transform .55s ease ${d}ms`,
-        };
-  return (
-    <header className="ng-hero" style={{ position: "relative", overflow: "hidden", paddingTop: 150, paddingBottom: 110 }}>
-      {/* single soft lavender glow, top-left, hero only */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: -160,
-          left: -160,
-          width: 720,
-          height: 620,
-          background: "radial-gradient(circle at center, rgba(167,139,250,0.22), rgba(167,139,250,0) 68%)",
-          pointerEvents: "none",
-        }}
-      />
-      <div style={{ ...container, position: "relative" }}>
-        <div
-          className="ng-hero-grid"
-          style={{ display: "grid", gridTemplateColumns: "1fr 1.1fr", gap: 40, alignItems: "center" }}
-        >
-          <div style={{ maxWidth: 620 }}>
-            <p style={{ ...eyebrow, marginBottom: 26, ...item(0) }}>Beginner-friendly AI community</p>
-            <h1
-              style={{
-                fontFamily: "'Playfair Display',Georgia,serif",
-                fontSize: "clamp(40px,6.2vw,72px)",
-                fontWeight: 600,
-                lineHeight: 1.05,
-                letterSpacing: "-0.025em",
-                margin: "0 0 26px",
-                background: H1_GRADIENT,
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                ...item(70),
-              }}
-            >
-              Get your first real wins with AI.
-            </h1>
-            <p style={{ ...body, fontSize: 19, color: TEXT, maxWidth: 560, margin: "0 0 38px", ...item(140) }}>
-              NEXTGEN is where beginners learn AI by doing. Start from zero in a place where it is safe to not know
-              things yet, and get real wins with people doing the work alongside you.
-            </p>
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center", ...item(210) }}>
-              <PrimaryButton onClick={() => (window.location.hash = "#/learn")}>Start Learning</PrimaryButton>
-              <a
-                href="#tracks"
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, color: TEXT, fontSize: 15, fontWeight: 500, textDecoration: "none" }}
-              >
-                See the paths
-                <span style={{ color: CORAL }}>→</span>
-              </a>
-            </div>
-          </div>
-          <div className="ng-hero-visual-wrap" style={{ position: "relative", ...item(140) }}>
-            <HeroVisual />
-            {/* Small floating info chips, desktop only — decorative, echo real
-                product mechanics (streak, auto-grading) without competing with
-                the 3D scene or the headline. */}
-            <div
-              className="ng-hero-chip"
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                top: -18,
-                right: 8,
-                zIndex: 2,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "10px 14px",
-                borderRadius: 12,
-                border: HAIR,
-                background: "rgba(18,10,36,0.85)",
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
-                ...item(320),
-              }}
-            >
-              <Flame size={16} style={{ color: VIOLET }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>6-day streak</span>
-            </div>
-            <div
-              className="ng-hero-chip"
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                bottom: -14,
-                left: 4,
-                zIndex: 2,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "10px 14px",
-                borderRadius: 12,
-                border: HAIR,
-                background: "rgba(18,10,36,0.85)",
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
-                ...item(380),
-              }}
-            >
-              <BadgeCheck size={16} style={{ color: VIOLET }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>Auto-graded, every day</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function Section({ id, alt, children, style }) {
   return (
     <section
@@ -698,7 +527,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <GeometricBackground>
+    <>
       <div
         id="top"
         style={{
@@ -712,19 +541,14 @@ export default function Landing() {
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
         a:hover{color:var(--foreground)}
-        .ng-spline{width:100% !important;height:100% !important;display:block !important}
-        .ng-spline canvas{width:100% !important;height:100% !important;display:block !important}
+        a[class*="bg-primary"]:hover{color:var(--primary-foreground)}
         @media (max-width:820px){
           .ng-navlinks{display:none !important}
           .ng-burger{display:block !important}
-          .ng-hero-grid{grid-template-columns:1fr !important;gap:24px !important}
-          .ng-hero-visual{height:360px !important;min-height:360px !important;opacity:0.9 !important}
-          .ng-hero-chip{display:none !important}
           .ng-grid-2{grid-template-columns:1fr !important;gap:32px !important}
           .ng-grid-3{grid-template-columns:1fr !important}
           .ng-plan-head,.ng-plan-row{grid-template-columns:1fr 56px 56px !important}
           .ng-section{padding:68px 0 !important}
-          .ng-hero{padding-top:118px !important;padding-bottom:72px !important}
         }
         @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
       `}</style>
@@ -743,6 +567,6 @@ export default function Landing() {
       <Faq />
       <Footer />
       </div>
-    </GeometricBackground>
+    </>
   );
 }

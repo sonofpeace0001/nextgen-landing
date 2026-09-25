@@ -14,6 +14,11 @@
   --accent-from: #e27fe0;
   --accent-via: #a855f7;
   --accent-to: #7c3aed;
+  --coral: #eb97a0; /* logo warm accent, used sparingly */
+  /* hero "stage" behind the character: deep violet in dark, soft lavender in light */
+  --stage-top: #2b1766;
+  --stage-bottom: #0e0821;
+  --stage-glow: #7c3aed;
 }
 
 [data-theme="light"] {
@@ -26,6 +31,10 @@
   --accent-from: #c026d3;
   --accent-via: #9333ea;
   --accent-to: #6d28d9;
+  --coral: #e0707f;
+  --stage-top: #ddd0fb;
+  --stage-bottom: #f6f2ff;
+  --stage-glow: #a78bfa;
 }
 
 html,
