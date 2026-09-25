@@ -7,7 +7,7 @@ import {
 } from "../lib/auth.js";
 import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/enrollment.js";
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
-import { submitDay } from "../lib/submit.js";
+import { submitDay, evaluateSubmission, requestRecheck } from "../lib/submit.js";
 import { currentStreak, tierName, getProgress } from "../lib/progress.js";
 import { recalledGoals, saveMyGoals } from "../lib/goalTracks.js";
 import { getMyProfile, redeemCode, trackTierAvailability } from "../lib/profile.js";
@@ -400,12 +400,117 @@ function Stat({ label: lbl, value }) {
   );
 }
 
+const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
+
+// Result of an AI-evaluated (or human-reviewed) submission: score, specific
+// feedback, an appeal, and a nudge to share the win on Discord.
+function FeedbackCard({ sub, onChanged }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const fb = sub.ai_feedback;
+  const criteria = sub.ai_scores?.criteria || [];
+  if (!fb && !sub.feedback) return null;
+  const canAppeal = sub.ai_scores && (sub.status === "scored" || sub.status === "needs_revision");
+  const recheck = async () => {
+    setErr("");
+    setBusy(true);
+    try {
+      await requestRecheck(supabase, sub.id);
+      onChanged?.();
+    } catch (e) {
+      setErr(e.message || "Could not send that.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const list = (items) => (
+    <ul style={{ margin: "6px 0 0", paddingLeft: 18, listStyle: "disc", color: "#D1D5DB", fontSize: 14, lineHeight: 1.6 }}>
+      {items.map((t, i) => (
+        <li key={i}>{t}</li>
+      ))}
+    </ul>
+  );
+  return (
+    <div style={{ border: "1px solid rgba(168,85,247,0.35)", background: "rgba(168,85,247,0.06)", borderRadius: 12, padding: 16, width: "100%", boxSizing: "border-box" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+        <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#A855F7", fontWeight: 700 }}>
+          {sub.ai_scores ? "AI-scored feedback" : "Feedback"}
+        </span>
+        {sub.score != null && (
+          <span style={{ fontSize: 20, fontWeight: 700, color: "#F5F5F7" }}>
+            {sub.score}
+            <span style={{ fontSize: 12, color: "#6B7280" }}> / 100</span>
+          </span>
+        )}
+      </div>
+      {fb ? (
+        <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 12 }}>
+          {fb.strengths?.length > 0 && (
+            <div>
+              <b style={{ fontSize: 13, color: "#34D399" }}>What worked</b>
+              {list(fb.strengths)}
+            </div>
+          )}
+          {fb.fixes?.length > 0 && (
+            <div>
+              <b style={{ fontSize: 13, color: "#FBBF24" }}>To improve</b>
+              {list(fb.fixes)}
+            </div>
+          )}
+          {fb.next_step && (
+            <p style={{ margin: 0, fontSize: 14, color: "#F5F5F7" }}>
+              <b>Next step: </b>
+              {fb.next_step}
+            </p>
+          )}
+          {criteria.length > 0 && (
+            <details style={{ fontSize: 13, color: "#9CA3AF" }}>
+              <summary style={{ cursor: "pointer" }}>How each part was scored</summary>
+              <ul style={{ margin: "8px 0 0", paddingLeft: 18, listStyle: "disc", lineHeight: 1.6 }}>
+                {criteria.map((c, i) => (
+                  <li key={i}>
+                    <b style={{ color: "#D1D5DB" }}>{c.name}</b>: {["Not yet", "Partly", "Yes"][c.level] ?? "—"}
+                    {c.evidence ? ` (${c.evidence})` : ""}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      ) : (
+        <p style={{ margin: "10px 0 0", fontSize: 14, color: "#D1D5DB", whiteSpace: "pre-wrap" }}>{sub.feedback}</p>
+      )}
+      {sub.status === "pending_review" && (
+        <p style={{ margin: "12px 0 0", fontSize: 13, color: "#9CA3AF" }}>A person is double-checking this. You can keep going while you wait.</p>
+      )}
+      <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 14 }}>
+        {sub.status === "scored" && sub.score >= 80 && (
+          <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" style={{ color: "#A855F7", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
+            Share this win on Discord →
+          </a>
+        )}
+        {canAppeal && (
+          <button
+            onClick={recheck}
+            disabled={busy}
+            style={{ background: "none", border: "none", color: "#9CA3AF", fontSize: 13, textDecoration: "underline", cursor: "pointer", fontFamily: "inherit", padding: 0 }}
+          >
+            {busy ? "Sending…" : "Ask a person to re-check"}
+          </button>
+        )}
+      </div>
+      {err && <p style={{ color: "#F87171", fontSize: 13, margin: "8px 0 0" }}>{err}</p>}
+    </div>
+  );
+}
+
 function SubmitPanel({ day, enrollmentId, onSubmitted }) {
   const mcq = (day.checks || []).find((c) => c.type === "mcq");
   const [answers, setAnswers] = useState({});
   const [text, setText] = useState("");
   const [self, setSelf] = useState("");
   const [busy, setBusy] = useState(false);
+  const [scoring, setScoring] = useState(false);
   const [error, setError] = useState("");
 
   const submit = async () => {
@@ -422,12 +527,17 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
     }
     setBusy(true);
     try {
-      await submitDay(supabase, { enrollmentId, dayId: day.id, content: text, selfScore: selfNum, answers: answersArr });
+      const res = await submitDay(supabase, { enrollmentId, dayId: day.id, content: text, selfScore: selfNum, answers: answersArr });
+      if (res?.status === "pending_ai") {
+        setScoring(true);
+        await evaluateSubmission(supabase, res.id);
+      }
       onSubmitted?.();
     } catch (e) {
       setError(e.message);
     } finally {
       setBusy(false);
+      setScoring(false);
     }
   };
 
@@ -477,7 +587,7 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
       </div>
       {error && <p style={{ color: "#F87171", fontSize: 13 }}>{error}</p>}
       <button style={{ ...primaryBtn, alignSelf: "flex-start", opacity: busy ? 0.6 : 1 }} onClick={submit} disabled={busy}>
-        {busy ? "Submitting…" : "Submit"}
+        {scoring ? "Scoring your work…" : busy ? "Submitting…" : "Submit"}
       </button>
     </div>
   );
@@ -607,8 +717,9 @@ function LessonView({ enrollment, track, onBack }) {
                 return (
                   <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
                     <p style={{ fontSize: 13, color: "#34D399", margin: 0 }}>
-                      Completed · score {existing?.score ?? "—"}
+                      {existing?.status === "pending_review" ? "Submitted · awaiting a person's check" : `Completed · score ${existing?.score ?? "—"}`}
                     </p>
+                    {existing && <FeedbackCard sub={existing} onChanged={load} />}
                     {hasNext ? (
                       <button
                         style={{ ...primaryBtn, opacity: nextUnlocked ? 1 : 0.6, cursor: nextUnlocked ? "pointer" : "not-allowed" }}
@@ -626,7 +737,33 @@ function LessonView({ enrollment, track, onBack }) {
                   </div>
                 );
               }
-              return <SubmitPanel key={content.id} day={content} enrollmentId={enrollment.id} onSubmitted={load} />;
+              if (existing?.status === "pending_ai") {
+                return (
+                  <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
+                    <p style={{ fontSize: 14, color: "#D1D5DB", margin: 0 }}>Scoring your work… this usually takes under a minute.</p>
+                    <button
+                      style={{ ...primaryBtn }}
+                      onClick={async () => {
+                        await evaluateSubmission(supabase, existing.id);
+                        load();
+                      }}
+                    >
+                      Check again
+                    </button>
+                  </div>
+                );
+              }
+              return (
+                <>
+                  {existing?.status === "needs_revision" && (existing.ai_feedback || existing.feedback) && (
+                    <div style={{ marginTop: 14 }}>
+                      <FeedbackCard sub={existing} onChanged={load} />
+                      <p style={{ fontSize: 13, color: "#9CA3AF", margin: "10px 0 0" }}>Revise your work and submit again. Each attempt is a chance to improve.</p>
+                    </div>
+                  )}
+                  <SubmitPanel key={content.id} day={content} enrollmentId={enrollment.id} onSubmitted={load} />
+                </>
+              );
             })()}
           </div>
         </div>
