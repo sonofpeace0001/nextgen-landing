@@ -1,0 +1,37 @@
+{
+  "note": "SYNTHETIC starting set, written and graded by the course author to exercise the scorer. Replace or extend with real, human-graded member submissions (about 20 per level) before trusting the scores.",
+  "level": "basic",
+  "day": {
+    "title": "Module project: your offer page",
+    "objective": "Deliver a clear one-page offer.",
+    "assignment_md": "Write a one-page offer: who it is for, problem, result, what is included, price, process and how to start.",
+    "rubric": [
+      {"criterion": "Clear offer", "max_points": 30, "guidance": "Specific who, result and inclusions."},
+      {"criterion": "Customer focus", "max_points": 25, "guidance": "Speaks to the customer's problem in their terms."},
+      {"criterion": "Honest claims", "max_points": 25, "guidance": "No invented proof, testimonials, statistics or guarantees."},
+      {"criterion": "Next step clear", "max_points": 20, "guidance": "One clear way to start."}
+    ]
+  },
+  "cases": [
+    {"id": 1, "levels": [2,2,2,2], "text": "I design three Instagram posts a week for independent cafes that are too busy to post. You get 12 posts a month in your brand colours, written captions and a monthly report of which posts got the most saves. 280 pounds a month, first week free so you can see the style. Process: a 20-minute call, a shared folder for photos, posts sent every Monday for approval. To start, book the call at the link below."},
+    {"id": 2, "levels": [2,2,2,1], "text": "I write welcome emails for online yoga teachers who lose new students after the first class. You get a 4-email sequence in your voice, delivered in 7 days, for 250 pounds. I ask five questions about your teaching style first, then send a draft you can edit twice. Interested? Reply to this page and we will talk."},
+    {"id": 3, "levels": [2,2,1,2], "text": "I create logos for new bakeries that need a look before opening day. You get 3 concepts, one round of changes and files for print and social, in 10 days for 350 pounds. My designs have helped bakeries increase sales quickly. Book a 15-minute chat to begin."},
+    {"id": 4, "levels": [1,2,2,2], "text": "I help small shops with their online presence. Tired of not getting customers? I understand that setting up online feels overwhelming when you also run the till. I will keep it simple, tell you the price up front, and start with a free 20-minute review of what you have now. Message me to arrange the review."},
+    {"id": 5, "levels": [2,1,2,2], "text": "Service: 8 product photos edited and sized for Etsy, delivered in 3 days, 40 pounds. Includes background clean-up and colour correction. Process: send photos by link, receive edits, one round of changes. Order by messaging me your link."},
+    {"id": 6, "levels": [0,0,1,0], "text": "I do design and content and marketing and websites and anything you need. Contact me."},
+    {"id": 7, "levels": [1,1,0,1], "text": "I make social media content for businesses. Clients say I am the best in the city and that I doubled their sales in one month. Guaranteed results or your money back. Price on request. Get in touch."},
+    {"id": 8, "levels": [2,2,0,2], "text": "I write product descriptions for online plant shops. 10 descriptions for 60 pounds, done in 2 days. What clients say: 'Sales went up 300 percent!' (Maria, Green Leaf Shop) and 'Best writer ever' (Tom, Fern Co). 100 percent guaranteed to boost your revenue. Send me your product list to start."},
+    {"id": 9, "levels": [2,2,2,0], "text": "I edit podcast audio for first-time podcasters who find editing takes longer than recording. You get noise removal, levels, and intro/outro added, for a 30-minute episode in 48 hours, 45 pounds per episode. I use AI-assisted tools and check every edit by ear. Process: upload the raw file, receive a draft, one round of changes."},
+    {"id": 10, "levels": [1,1,2,2], "text": "I offer copywriting services for small businesses. You get well-written text for your website. Price is 200 pounds. I am honest about what I can do: I am new, so I am building a portfolio and my rate is lower. Email me to start."},
+    {"id": 11, "levels": [0,1,2,1], "text": "Creative solutions for your brand. I am passionate about design and helping people. Contact for more information."},
+    {"id": 12, "levels": [2,2,1,1], "text": "I build one-page websites for freelance photographers who only have an Instagram. You get a fast mobile page with your best 12 photos, a contact form and your own web address, live in 7 days for 420 pounds. You will love the result and get more clients. Ready? Send me your Instagram handle."},
+    {"id": 13, "levels": [2,1,2,1], "text": "Weekly newsletter writing for local estate agents: 1 newsletter per week, 300 words, using your listings. 180 pounds per month. I do it in your tone after reading five of your past emails. Let me know if you are interested."},
+    {"id": 14, "levels": [1,0,2,2], "text": "I am a graphic designer with 2 years of practice. I use Canva and AI tools. I can make flyers, posters and cards. Prices start at 20 pounds. Send me a message and I will reply the same day."},
+    {"id": 15, "levels": [2,2,2,2], "text": "I turn messy meeting notes into a one-page summary with decisions and owners, for small teams who lose track after calls. Send the recording or notes, get the summary in 24 hours, 15 pounds per meeting or 120 for ten. I never share your notes and delete files after 7 days. Try one meeting free: send me your first notes to begin."},
+    {"id": 16, "levels": [0,1,1,0], "text": "I can help you grow using AI. It is the future. Everyone needs it. Ask me how."},
+    {"id": 17, "levels": [2,1,0,2], "text": "I create short videos for gyms: 4 videos a month, 30 seconds each, 300 pounds. I was featured in a national magazine and worked with a famous brand. Send me your gym's name to start."},
+    {"id": 18, "levels": [1,2,2,1], "text": "I know that new restaurant owners have no time for menus. I make clear, good-looking menus you can print. Different prices depending on the size. Get in touch when ready."},
+    {"id": 19, "levels": [2,2,2,1], "text": "I design slide decks for startup founders pitching to investors for the first time. You get a 10-slide deck with a clear story, clean charts and speaker notes, in 5 days for 400 pounds. I start with a 30-minute call about your numbers. Contact me if this fits."},
+    {"id": 20, "levels": [1,1,1,1], "text": "I help small businesses with content. I write blog posts and social captions. My price depends on the project. I care about quality and want you to be happy. Please get in touch to find out more."}
+  ]
+}

@@ -24,6 +24,13 @@ function genCode(len = 8) {
   return `NG-${s}`;
 }
 
+// Keep enrollment.current_day in step with approved work (only 'scored' counts).
+async function syncProgress(db: ReturnType<typeof createClient>, enrollmentId: string) {
+  const { count } = await db.from("submission").select("id", { count: "exact", head: true }).eq("enrollment_id", enrollmentId).eq("status", "scored");
+  const { data: enr } = await db.from("enrollment").select("total_days").eq("id", enrollmentId).maybeSingle();
+  if (enr) await db.from("enrollment").update({ current_day: Math.min(Math.max((count ?? 0) + 1, 1), enr.total_days) }).eq("id", enrollmentId);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
@@ -145,6 +152,7 @@ Deno.serve(async (req) => {
           .select()
           .single();
         if (error) throw error;
+        await syncProgress(db, data.enrollment_id);
         return json({ submission: data });
       }
       case "review.score": {
@@ -160,6 +168,7 @@ Deno.serve(async (req) => {
           .select()
           .single();
         if (error) throw error;
+        await syncProgress(db, data.enrollment_id);
         return json({ submission: data });
       }
 

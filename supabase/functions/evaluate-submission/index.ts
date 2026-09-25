@@ -146,12 +146,12 @@ Deno.serve(async (req) => {
       .eq("status", "pending_ai");
     await log(outcome, { score, confidence: ev.confidence, flags: ev.flags });
 
-    // Keep the progress pointer honest (scored or pending_review counts).
+    // Keep the progress pointer honest (only approved/scored work counts).
     const { count: done } = await db
       .from("submission")
       .select("id", { count: "exact", head: true })
       .eq("enrollment_id", sub.enrollment_id)
-      .in("status", ["scored", "pending_review"]);
+      .eq("status", "scored");
     const { data: enr } = await db.from("enrollment").select("total_days").eq("id", sub.enrollment_id).maybeSingle();
     if (enr) {
       await db
