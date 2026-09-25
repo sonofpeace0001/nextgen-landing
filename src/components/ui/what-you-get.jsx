@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Rocket, Users, CalendarCheck, TrendingUp } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { Rocket, Users, CalendarCheck, TrendingUp, Check, Crown } from "lucide-react";
 
 const ITEMS = [
   { icon: Rocket, title: "Learn by doing", text: "Practical AI skills, starting with a 10-minute first win." },
@@ -8,10 +9,14 @@ const ITEMS = [
   { icon: TrendingUp, title: "A path upward", text: "Go from novice toward grandmaster at your pace." },
 ];
 
-// Purely illustrative UI, built in CSS — not a real screenshot, and never
-// claims to be one. Reuses the initials-avatar language already established
-// in Testimonials rather than stock photos.
-const MEMBER_INITIALS = ["AM", "DK", "PR", "TU", "LN"];
+// The four tiers every path runs through (same ladder shown in Learning Paths).
+// Purely illustrative UI, built in CSS: not a real screenshot, and never claims to be one.
+const LADDER = [
+  { name: "Basic", state: "done" },
+  { name: "Pro", state: "active" },
+  { name: "Expert", state: "todo" },
+  { name: "Grandmaster", state: "todo" },
+];
 
 const prefersReducedMotion =
   typeof window !== "undefined" && window.matchMedia
@@ -53,36 +58,73 @@ function FadeUp({ children, delay = 0 }) {
   );
 }
 
-function DashboardPreview() {
+function PathLadder() {
+  const reduce = !!useReducedMotion();
   return (
-    <div className="rounded-2xl border border-border bg-[color-mix(in_srgb,var(--foreground)_4%,var(--background))] p-6">
+    <div
+      className="rounded-2xl border border-border p-6"
+      style={{
+        background:
+          "linear-gradient(180deg, color-mix(in srgb, var(--primary) 7%, var(--background)), color-mix(in srgb, var(--foreground) 3%, var(--background)))",
+      }}
+    >
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Your day</span>
-        <span className="rounded-full border border-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-          Day 14
-        </span>
+        <span className="font-accent text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Your path</span>
+        <span className="rounded-full border border-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary">Novice · 90 days</span>
       </div>
-      <h3 className="mt-3 text-[15px] font-semibold text-foreground">Prompting for real work</h3>
-      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--foreground)_10%,var(--background))]">
-        <div className="h-full w-[62%] rounded-full bg-primary" />
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">6-day streak</span>
-        <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">auto-graded · 92</span>
-      </div>
-      <div className="mt-6 border-t border-border pt-4">
-        <span className="text-xs text-muted-foreground">400+ builders online</span>
-        <div className="mt-2.5 flex -space-x-2">
-          {MEMBER_INITIALS.map((initials) => (
-            <span
-              key={initials}
-              className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-[color-mix(in_srgb,var(--foreground)_8%,var(--background))] text-[10px] font-semibold text-muted-foreground"
+
+      <ol className="relative mt-6 space-y-2.5">
+        <span
+          aria-hidden="true"
+          className="absolute bottom-6 left-[19px] top-6 w-px"
+          style={{ background: "linear-gradient(to bottom, var(--primary), color-mix(in srgb, var(--foreground) 14%, transparent) 55%)" }}
+        />
+        {LADDER.map((tier, i) => {
+          const done = tier.state === "done";
+          const active = tier.state === "active";
+          return (
+            <li
+              key={tier.name}
+              className="relative flex items-center gap-4 rounded-xl border px-3 py-3"
+              style={{
+                borderColor: active ? "color-mix(in srgb, var(--primary) 45%, transparent)" : "var(--border)",
+                background: active ? "color-mix(in srgb, var(--primary) 9%, transparent)" : "transparent",
+              }}
             >
-              {initials}
-            </span>
-          ))}
-        </div>
-      </div>
+              <span
+                className="relative z-10 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold"
+                style={{
+                  background: done ? "var(--primary)" : "var(--background)",
+                  borderColor: done || active ? "var(--primary)" : "var(--border)",
+                  color: done ? "var(--primary-foreground)" : active ? "var(--primary)" : "var(--muted-foreground)",
+                }}
+              >
+                {done ? <Check size={14} strokeWidth={3} aria-hidden="true" /> : i === 3 ? <Crown size={13} aria-hidden="true" /> : i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className={`text-[14px] font-semibold ${done || active ? "text-foreground" : "text-muted-foreground"}`}>{tier.name}</p>
+                {active && (
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full" style={{ background: "color-mix(in srgb, var(--foreground) 10%, transparent)" }}>
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ background: "linear-gradient(90deg, var(--primary), var(--coral))" }}
+                      initial={reduce ? { width: "58%" } : { width: "0%" }}
+                      whileInView={{ width: "58%" }}
+                      viewport={{ once: true, amount: 0.6 }}
+                      transition={{ duration: 1.3, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </div>
+                )}
+              </div>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                {done ? "Complete" : active ? "In progress" : "Up next"}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="mt-5 border-t border-border pt-4 text-xs text-muted-foreground">Every path runs Basic to Grandmaster, one focused day at a time.</p>
     </div>
   );
 }
@@ -111,7 +153,7 @@ export function WhatYouGet() {
           </div>
         </FadeUp>
         <FadeUp delay={100}>
-          <DashboardPreview />
+          <PathLadder />
         </FadeUp>
       </div>
     </section>
