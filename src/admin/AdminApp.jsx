@@ -189,29 +189,81 @@ function ContentTab() {
   );
 }
 
+function AiSummary({ s }) {
+  const fb = s.ai_feedback;
+  const crit = s.ai_scores?.criteria || [];
+  const flags = s.ai_scores?.flags || [];
+  if (!s.ai_scores && s.score == null) {
+    return <p style={{ fontSize: 12, color: "#6B7280", margin: "0 0 10px" }}>No automatic score for this one. Score it below.</p>;
+  }
+  const li = (t, i) => <li key={i}>{t}</li>;
+  return (
+    <div style={{ border: "1px solid rgba(168,85,247,0.35)", background: "rgba(168,85,247,0.06)", borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: "#D1D5DB" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <b style={{ color: "#A855F7", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          AI score{s.ai_model ? ` · ${s.ai_model}` : ""}{s.attempt > 1 ? ` · attempt ${s.attempt}` : ""}
+        </b>
+        <span>
+          <b style={{ fontSize: 18, color: "#F5F5F7" }}>{s.score ?? "—"}</b> / 100
+          {s.ai_confidence != null && <span style={{ color: "#9CA3AF" }}> · confidence {Math.round(s.ai_confidence * 100)}%</span>}
+        </span>
+      </div>
+      {flags.length > 0 && <p style={{ margin: "8px 0 0", color: "#FBBF24" }}>Flags: {flags.join(", ")}</p>}
+      {crit.length > 0 && (
+        <ul style={{ margin: "8px 0 0", paddingLeft: 18, listStyle: "disc", lineHeight: 1.6 }}>
+          {crit.map((c, i) => (
+            <li key={i}><b>{c.name}</b>: {["Not yet", "Partly", "Yes"][c.level] ?? "—"}{c.evidence ? ` (${c.evidence})` : ""}</li>
+          ))}
+        </ul>
+      )}
+      {fb?.strengths?.length > 0 && <div style={{ marginTop: 8 }}><b style={{ color: "#34D399" }}>Worked</b><ul style={{ margin: "2px 0 0", paddingLeft: 18, listStyle: "disc" }}>{fb.strengths.map(li)}</ul></div>}
+      {fb?.fixes?.length > 0 && <div style={{ marginTop: 8 }}><b style={{ color: "#FBBF24" }}>To improve</b><ul style={{ margin: "2px 0 0", paddingLeft: 18, listStyle: "disc" }}>{fb.fixes.map(li)}</ul></div>}
+      {fb?.next_step && <p style={{ margin: "8px 0 0" }}><b>Next step:</b> {fb.next_step}</p>}
+    </div>
+  );
+}
+
 function ReviewTab() {
   const { data, error, reload } = useAsync(() => adminApi.listReviewQueue(), []);
   const [drafts, setDrafts] = useState({});
   const [err, setErr] = useState("");
+  const [busy, setBusy] = useState("");
   const set = (id, k, v) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [k]: v } }));
-  const score = async (s) => {
-    const d = drafts[s.id] || {};
+  const run = async (s, fn) => {
     setErr("");
-    try { await adminApi.scoreSubmission(s.id, Number(d.score), d.feedback ?? ""); reload(); } catch (e) { setErr(e.message); }
+    setBusy(s.id);
+    try { await fn(); reload(); } catch (e) { setErr(e.message); } finally { setBusy(""); }
+  };
+  const approve = (s) => run(s, () => adminApi.approveSubmission(s.id));
+  const decide = (s, decision) => {
+    const d = drafts[s.id] || {};
+    const score = d.score === undefined || d.score === "" ? s.score : Number(d.score);
+    if (score == null || Number.isNaN(Number(score))) { setErr("Enter a score first."); return; }
+    return run(s, () => adminApi.scoreSubmission(s.id, Number(score), d.feedback ?? "", decision));
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <p style={{ fontSize: 13, color: "#9CA3AF", margin: 0 }}>
+        Members can only move on after you approve their work. Approve the AI score as it is, change the score, or send it back for a revision.
+      </p>
       {(err || error) && <p style={errStyle}>{err || error}</p>}
       {(data?.queue ?? []).map((s) => (
         <div key={s.id} style={card}>
-          <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 6 }}>{s.email} · Day {s.day?.day_number}</div>
+          <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 6 }}>{s.email} · Day {s.day?.day_number}{s.day?.title ? ` · ${s.day.title}` : ""}</div>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>{s.day?.objective}</div>
           <div style={{ fontSize: 13, color: "#D1D5DB", marginBottom: 4 }}><b>Assignment:</b> {s.day?.assignment_md}</div>
-          <div style={{ fontSize: 13, color: "#D1D5DB", whiteSpace: "pre-wrap", marginBottom: 10 }}><b>Submission:</b> {s.content || "—"} <span style={{ color: "#6B7280" }}>(self {s.self_score ?? "—"} / check {s.check_score ?? "—"})</span></div>
+          <div style={{ fontSize: 13, color: "#D1D5DB", whiteSpace: "pre-wrap", marginBottom: 10, wordBreak: "break-word" }}><b>Submission:</b> {s.content || "—"} <span style={{ color: "#6B7280" }}>(self {s.self_score ?? "—"} / check {s.check_score ?? "—"})</span></div>
+          <AiSummary s={s} />
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <input style={{ ...input, width: 90 }} type="number" min="0" max="100" placeholder="Score" value={drafts[s.id]?.score ?? ""} onChange={(e) => set(s.id, "score", e.target.value)} />
-            <input style={{ ...input, flex: 1, minWidth: 180 }} placeholder="Feedback" value={drafts[s.id]?.feedback ?? ""} onChange={(e) => set(s.id, "feedback", e.target.value)} />
-            <button style={btn} onClick={() => score(s)}>Score</button>
+            <input style={{ ...input, width: 90 }} type="number" min="0" max="100" placeholder={s.score != null ? String(s.score) : "Score"} value={drafts[s.id]?.score ?? ""} onChange={(e) => set(s.id, "score", e.target.value)} />
+            <input style={{ ...input, flex: 1, minWidth: 180 }} placeholder="Note to the member (optional)" value={drafts[s.id]?.feedback ?? ""} onChange={(e) => set(s.id, "feedback", e.target.value)} />
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+            {s.score != null && !drafts[s.id]?.score && !drafts[s.id]?.feedback && (
+              <button style={btn} disabled={busy === s.id} onClick={() => approve(s)}>Approve AI score ({s.score})</button>
+            )}
+            <button style={btn} disabled={busy === s.id} onClick={() => decide(s, "approve")}>Approve with this score</button>
+            <button style={ghost} disabled={busy === s.id} onClick={() => decide(s, "revise")}>Send back for revision</button>
           </div>
         </div>
       ))}

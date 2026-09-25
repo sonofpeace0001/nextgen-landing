@@ -72,15 +72,18 @@ describe("buildPathView", () => {
     expect(view[1].status).toBe("locked"); // next stays locked
   });
 
-  it("treats a pending_review submission as completed (non-blocking)", () => {
-    const view = buildPathView({
+  it("does not advance past a pending_review submission until an admin approves it", () => {
+    const sub = (status) => ({ day_id: "a", submitted_at: day(1).toISOString(), status });
+    const run = (status) => buildPathView({
       plan,
       days,
-      submissions: [{ day_id: "a", submitted_at: day(1).toISOString(), status: "pending_review" }],
+      submissions: [sub(status)],
       enrollment: { start_date: day(1), unlock_mode: "completion" },
       today: day(1),
     });
-    expect(view[0].status).toBe("completed"); // counts as submitted
-    expect(view[1].status).toBe("unlocked"); // next opens while review is pending
+    expect(run("pending_review")[0].status).toBe("unlocked"); // not completed yet
+    expect(run("pending_review")[1].status).toBe("locked"); // next stays shut
+    expect(run("scored")[0].status).toBe("completed"); // approved
+    expect(run("scored")[1].status).toBe("unlocked");
   });
 });

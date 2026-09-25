@@ -5,9 +5,9 @@ import {
   signIn, signUp, signOut, getSession, onAuthChange,
   requestPasswordReset, updatePassword, onPasswordRecovery,
 } from "../lib/auth.js";
-import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/enrollment.js";
+import { listPublishedTracks, getMyEnrollments, createEnrollment, ensureFoundations } from "../lib/enrollment.js";
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
-import { submitDay, evaluateSubmission, requestRecheck } from "../lib/submit.js";
+import { submitDay, evaluateSubmission, requestRecheck, shareToDiscord } from "../lib/submit.js";
 import { currentStreak, tierName, getProgress } from "../lib/progress.js";
 import { recalledGoals, saveMyGoals } from "../lib/goalTracks.js";
 import { getMyProfile, redeemCode, trackTierAvailability } from "../lib/profile.js";
@@ -221,7 +221,8 @@ function EnrollCard({ onEnrolled }) {
   const [redeemMsg, setRedeemMsg] = useState(null); // { ok, text }
 
   useEffect(() => {
-    listPublishedTracks(supabase).then((t) => {
+    listPublishedTracks(supabase).then((all) => {
+      const t = all.filter((x) => x.slug !== "foundations"); // members are enrolled automatically
       setTracks(t);
       // Pre-select the track that matches the goal chosen on the Start page, if it is open.
       const wanted = recalledGoals();
@@ -407,6 +408,7 @@ const DISCORD_URL = "https://discord.gg/HDgMdVECwF";
 function FeedbackCard({ sub, onChanged }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [shared, setShared] = useState(false);
   const fb = sub.ai_feedback;
   const criteria = sub.ai_scores?.criteria || [];
   if (!fb && !sub.feedback) return null;
@@ -419,6 +421,18 @@ function FeedbackCard({ sub, onChanged }) {
       onChanged?.();
     } catch (e) {
       setErr(e.message || "Could not send that.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const share = async () => {
+    setErr("");
+    setBusy(true);
+    try {
+      await shareToDiscord(supabase, sub.id);
+      setShared(true);
+    } catch (e) {
+      setErr(e.message || "Could not share right now.");
     } finally {
       setBusy(false);
     }
@@ -480,14 +494,32 @@ function FeedbackCard({ sub, onChanged }) {
       ) : (
         <p style={{ margin: "10px 0 0", fontSize: 14, color: "#D1D5DB", whiteSpace: "pre-wrap" }}>{sub.feedback}</p>
       )}
+      {fb && sub.feedback && (
+        <p style={{ margin: "12px 0 0", fontSize: 14, color: "#F5F5F7", whiteSpace: "pre-wrap" }}>
+          <b>Note from a person: </b>
+          {sub.feedback}
+        </p>
+      )}
       {sub.status === "pending_review" && (
-        <p style={{ margin: "12px 0 0", fontSize: 13, color: "#9CA3AF" }}>A person is double-checking this. You can keep going while you wait.</p>
+        <p style={{ margin: "12px 0 0", fontSize: 13, color: "#9CA3AF" }}>A person is checking this. The next day opens once it is approved.</p>
       )}
       <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 14 }}>
         {sub.status === "scored" && sub.score >= 80 && (
-          <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" style={{ color: "#A855F7", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>
-            Share this win on Discord →
-          </a>
+          sub.share_status === "shared" || shared ? (
+            <span style={{ color: "#34D399", fontSize: 14, fontWeight: 600 }}>
+              Shared on Discord ✓{" "}
+              <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" style={{ color: "#A855F7", textDecoration: "none" }}>Open Discord →</a>
+            </span>
+          ) : (
+            <button
+              onClick={share}
+              disabled={busy}
+              title="Posts your name, score and image link to the NEXTGEN Discord"
+              style={{ background: "none", border: "none", color: "#A855F7", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", padding: 0 }}
+            >
+              {busy ? "Sharing…" : "Share this win on Discord →"}
+            </button>
+          )
         )}
         {canAppeal && (
           <button
@@ -717,7 +749,7 @@ function LessonView({ enrollment, track, onBack }) {
                 return (
                   <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
                     <p style={{ fontSize: 13, color: "#34D399", margin: 0 }}>
-                      {existing?.status === "pending_review" ? "Submitted · awaiting a person's check" : `Completed · score ${existing?.score ?? "—"}`}
+                      {existing?.status === "pending_review" ? "Submitted · the next day opens once a person approves it" : `Completed · score ${existing?.score ?? "—"}`}
                     </p>
                     {existing && <FeedbackCard sub={existing} onChanged={load} />}
                     {hasNext ? (
@@ -780,9 +812,13 @@ function Dashboard({ session }) {
 
   const refresh = async () => {
     setLoading(true);
+    await ensureFoundations(supabase); // everyone starts with Foundations
     const [enr, trk] = await Promise.all([getMyEnrollments(supabase), listPublishedTracks(supabase)]);
+    const byId = Object.fromEntries(trk.map((t) => [t.id, t]));
+    // Foundations always first
+    enr.sort((a, b) => (byId[b.track_id]?.slug === "foundations") - (byId[a.track_id]?.slug === "foundations"));
     setEnrollments(enr);
-    setTracks(Object.fromEntries(trk.map((t) => [t.id, t])));
+    setTracks(byId);
     setLoading(false);
   };
   useEffect(() => { refresh(); }, []);

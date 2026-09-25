@@ -37,3 +37,14 @@ export async function requestRecheck(supabase, submissionId) {
   if (error) throw error;
   return data;
 }
+
+// Member opt-in: post an approved, high-scoring submission to the community Discord.
+export async function shareToDiscord(supabase, submissionId) {
+  const { data, error } = await supabase.functions.invoke("share-to-discord", { body: { submission_id: submissionId } });
+  if (error) {
+    let msg = "Could not share right now.";
+    try { msg = (await error.context.json()).error || msg; } catch { /* keep default */ }
+    throw new Error(msg);
+  }
+  return data;
+}

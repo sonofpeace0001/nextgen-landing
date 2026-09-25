@@ -12,7 +12,7 @@ export async function resolvePlan(supabase, enrollment) {
 export async function getMySubmissions(supabase, enrollmentId) {
   const { data, error } = await supabase
     .from("submission")
-    .select("id, day_id, status, score, submitted_at, feedback, ai_scores, ai_feedback, ai_model, attempt")
+    .select("id, day_id, status, score, submitted_at, feedback, ai_scores, ai_feedback, ai_model, attempt, share_status")
     .eq("enrollment_id", enrollmentId);
   if (error) throw error;
   return data ?? [];
@@ -45,12 +45,12 @@ export function buildPathView({ plan, days, submissions, enrollment, today = new
   const numberById = new Map(days.map((d) => [d.id, d.day_number]));
   const indexByNumber = new Map(plan.dayNumbers.map((n, i) => [n, i + 1]));
 
-  // A submitted day unlocks the next: 'scored' (passed) or 'pending_review'
-  // (awaiting an instructor — non-blocking). 'needs_revision' does NOT advance —
-  // the student retries.
+  // Only an approved day unlocks the next: 'scored' (passed by the scorer or approved
+  // by an admin). 'pending_review' (waiting on a person) and 'needs_revision' do NOT
+  // advance — the student waits for approval or revises.
   const completions = new Map();
   for (const s of submissions) {
-    if (s.status !== "scored" && s.status !== "pending_review") continue;
+    if (s.status !== "scored") continue;
     const num = numberById.get(s.day_id);
     const idx = num != null ? indexByNumber.get(num) : undefined;
     if (idx) completions.set(idx, new Date(s.submitted_at));

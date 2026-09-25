@@ -22,7 +22,8 @@ export const adminApi = {
   publishDay: (id, is_published) => call("content.publishDay", { id, is_published }),
   // review queue
   listReviewQueue: () => call("review.list"),
-  scoreSubmission: (submission_id, score, feedback) => call("review.score", { submission_id, score, feedback }),
+  scoreSubmission: (submission_id, score, feedback, decision = "approve") => call("review.score", { submission_id, score, feedback, decision }),
+  approveSubmission: (submission_id) => call("review.approve", { submission_id }),
   // settings
   getSettings: () => call("settings.get"),
   updateSetting: (key, value) => call("settings.update", { key, value }),

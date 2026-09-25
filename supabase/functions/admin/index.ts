@@ -24,6 +24,13 @@ function genCode(len = 8) {
   return `NG-${s}`;
 }
 
+// Keep enrollment.current_day in step with approved work (only 'scored' counts).
+async function syncProgress(db: ReturnType<typeof createClient>, enrollmentId: string) {
+  const { count } = await db.from("submission").select("id", { count: "exact", head: true }).eq("enrollment_id", enrollmentId).eq("status", "scored");
+  const { data: enr } = await db.from("enrollment").select("total_days").eq("id", enrollmentId).maybeSingle();
+  if (enr) await db.from("enrollment").update({ current_day: Math.min(Math.max((count ?? 0) + 1, 1), enr.total_days) }).eq("id", enrollmentId);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
@@ -113,13 +120,13 @@ Deno.serve(async (req) => {
       case "review.list": {
         const { data: subs } = await db
           .from("submission")
-          .select("id, content, self_score, check_score, submitted_at, user_id, day_id, enrollment_id")
+          .select("id, content, self_score, check_score, submitted_at, user_id, day_id, enrollment_id, score, ai_scores, ai_feedback, ai_model, ai_confidence, attempt, feedback")
           .eq("status", "pending_review")
           .order("submitted_at");
         const dayIds = [...new Set((subs ?? []).map((s) => s.day_id))];
         const userIds = [...new Set((subs ?? []).map((s) => s.user_id))];
         const [{ data: days }, { data: profs }] = await Promise.all([
-          db.from("day").select("id, day_number, objective, assignment_md, rubric").in("id", dayIds.length ? dayIds : ["00000000-0000-0000-0000-000000000000"]),
+          db.from("day").select("id, day_number, title, objective, assignment_md, rubric, track_id").in("id", dayIds.length ? dayIds : ["00000000-0000-0000-0000-000000000000"]),
           db.from("profile").select("id, email").in("id", userIds.length ? userIds : ["00000000-0000-0000-0000-000000000000"]),
         ]);
         const dayById = new Map((days ?? []).map((d) => [d.id, d]));
@@ -128,16 +135,40 @@ Deno.serve(async (req) => {
           queue: (subs ?? []).map((s) => ({ ...s, day: dayById.get(s.day_id), email: emailById.get(s.user_id) })),
         });
       }
-      case "review.score": {
-        const score = Number(payload.score);
-        if (Number.isNaN(score) || score < 0 || score > 100) return json({ error: "score must be 0-100" }, 400);
+      case "review.approve": {
+        // Accept the scorer's result as-is. Only an approved (scored) day unlocks the next one.
+        const { data: sub, error: e1 } = await db
+          .from("submission")
+          .select("id, score, ai_scores")
+          .eq("id", payload.submission_id)
+          .eq("status", "pending_review")
+          .single();
+        if (e1 || !sub) return json({ error: "Submission is not waiting for review" }, 400);
+        if (sub.score == null) return json({ error: "No score to approve. Enter a score instead." }, 400);
         const { data, error } = await db
           .from("submission")
-          .update({ score, feedback: payload.feedback ?? null, reviewed_by: user.id, reviewed_at: new Date().toISOString(), status: "scored" })
+          .update({ reviewed_by: user.id, reviewed_at: new Date().toISOString(), status: "scored" })
+          .eq("id", sub.id)
+          .select()
+          .single();
+        if (error) throw error;
+        await syncProgress(db, data.enrollment_id);
+        return json({ submission: data });
+      }
+      case "review.score": {
+        // Human decision. decision: 'approve' (default) -> scored, unlocks the next day;
+        // 'revise' -> needs_revision, the member fixes and resubmits.
+        const score = Number(payload.score);
+        if (Number.isNaN(score) || score < 0 || score > 100) return json({ error: "score must be 0-100" }, 400);
+        const status = payload.decision === "revise" ? "needs_revision" : "scored";
+        const { data, error } = await db
+          .from("submission")
+          .update({ score, feedback: payload.feedback ?? null, reviewed_by: user.id, reviewed_at: new Date().toISOString(), status })
           .eq("id", payload.submission_id)
           .select()
           .single();
         if (error) throw error;
+        await syncProgress(db, data.enrollment_id);
         return json({ submission: data });
       }
 
