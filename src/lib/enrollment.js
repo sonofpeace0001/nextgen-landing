@@ -47,7 +47,7 @@ export async function createEnrollment(supabase, { trackId, entryLevel }) {
       track_id: trackId,
       entry_level: entryLevel,
       start_tier_id: plan.startTierId,
-      total_days: plan.requestedDays,
+      total_days: plan.requestedDays + plan.labDays,
       current_day: 1,
       unlock_mode: DEFAULT_UNLOCK_MODE,
     })

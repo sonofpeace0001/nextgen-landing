@@ -12,6 +12,10 @@ export const ENTRY_LEVELS = {
   advanced: { startTier: "expert", totalDays: 30 },
 };
 
+// Skill Labs: optional bonus days numbered from LAB_START_DAY onward. They come after the
+// core path (Basic to Grandmaster) and are appended to every entry level's path.
+export const LAB_START_DAY = 91;
+
 // Drip default: completion-gated — the next day unlocks as soon as the previous
 // one is completed (no calendar-day cooldown), so members can move at their pace.
 export const DEFAULT_UNLOCK_MODE = "completion";
