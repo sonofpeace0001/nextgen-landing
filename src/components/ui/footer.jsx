@@ -16,6 +16,7 @@ const COLUMNS = [
   {
     title: "About",
     links: [
+      { label: "Start here", href: "#/start" },
       { label: "What is NEXTGEN", href: "#how" },
       { label: "Learning Paths", href: "#tracks" },
       { label: "Elite", href: "#plans" },

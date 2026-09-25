@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useMotionValue, useSpring, useTransform, animate } from "motion/react";
-import { ArrowRight, ChevronDown, Flame, BookOpen } from "lucide-react";
+import { ArrowRight, Flame, BookOpen } from "lucide-react";
 
 const EASE = [0.22, 1, 0.36, 1];
 const LEARN_HREF = "#/learn";
@@ -307,6 +307,7 @@ export function Hero() {
             <Line
               delay={0.24}
               reduce={reduce}
+              className="italic"
               style={{
                 background: "linear-gradient(100deg, var(--primary) 0%, var(--primary) 38%, var(--coral) 100%)",
                 WebkitBackgroundClip: "text",
@@ -333,11 +334,11 @@ export function Hero() {
               <ArrowRight size={17} className="transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
             </a>
             <a
-              href="#how"
+              href="#/start"
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border px-5 text-[15px] font-medium sm:w-auto text-foreground transition-colors hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] motion-reduce:transition-none"
             >
-              See how it works
-              <ChevronDown size={16} className="text-muted-foreground" aria-hidden="true" />
+              Not sure where to start?
+              <ArrowRight size={15} className="text-muted-foreground" aria-hidden="true" />
             </a>
           </motion.div>
 
