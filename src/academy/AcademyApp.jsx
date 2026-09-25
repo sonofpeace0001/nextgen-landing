@@ -9,6 +9,7 @@ import { listPublishedTracks, getMyEnrollments, createEnrollment } from "../lib/
 import { resolvePlan, getMySubmissions, getDayByNumber, buildPathView } from "../lib/delivery.js";
 import { submitDay } from "../lib/submit.js";
 import { currentStreak, tierName, getProgress } from "../lib/progress.js";
+import { recalledGoals, saveMyGoals } from "../lib/goalTracks.js";
 import { getMyProfile, redeemCode, trackTierAvailability } from "../lib/profile.js";
 import { levelState } from "../lib/levels.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
@@ -222,7 +223,10 @@ function EnrollCard({ onEnrolled }) {
   useEffect(() => {
     listPublishedTracks(supabase).then((t) => {
       setTracks(t);
-      if (t[0]) setTrackId(t[0].id);
+      // Pre-select the track that matches the goal chosen on the Start page, if it is open.
+      const wanted = recalledGoals();
+      const match = t.find((x) => wanted.includes(x.slug));
+      if (match || t[0]) setTrackId((match || t[0]).id);
     }).catch((e) => setError(e.message));
     getMyProfile(supabase).then((p) => setIsElite(!!p?.is_elite)).catch(() => {});
   }, []);
@@ -240,6 +244,7 @@ function EnrollCard({ onEnrolled }) {
     setBusy(true);
     try {
       await createEnrollment(supabase, { trackId, entryLevel: level });
+      saveMyGoals(supabase, recalledGoals()); // best-effort; never blocks enrolment
       onEnrolled();
     } catch (e) {
       setError(e.message || "Could not enroll.");
