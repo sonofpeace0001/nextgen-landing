@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, Code2, ExternalLink, HelpCircle, MessageCircle, Palette, PenLine, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Briefcase, Check, Clapperboard, Code2, ExternalLink, HelpCircle, MessageCircle, Mic, Palette, PenLine, RotateCcw, Search, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/ui/navbar";
 import { Footer } from "@/components/ui/footer";
+import { CREAO_URL, GOALS, GOAL_BY_ID, goalStatus, rememberGoal } from "@/lib/goalTracks";
 
 /* Everything on this page reuses facts already stated on the marketing page
    (paths + day counts, the four tiers, the FAQ answers, the signup / Discord /
@@ -26,12 +27,18 @@ const LEVELS = [
   { id: "advanced", label: "I work with AI regularly", hint: "I want to reach expert level" },
 ];
 
-const INTERESTS = [
-  { id: "graphics", label: "Graphics and design", icon: Palette },
-  { id: "content", label: "Content and writing", icon: PenLine },
-  { id: "apps", label: "Apps and tools", icon: Code2 },
-  { id: "unsure", label: "Not sure yet", icon: HelpCircle },
-];
+const GOAL_ICONS = {
+  graphics: Palette,
+  content: PenLine,
+  apps: Code2,
+  agents: Bot,
+  film: Clapperboard,
+  motion: Sparkles,
+  audio: Mic,
+  research: Search,
+  business: Briefcase,
+  unsure: HelpCircle,
+};
 
 const STEPS = [
   { id: "join", title: "Create your free account", desc: "It takes a minute. Tell us where you are starting from.", cta: { label: "Sign up free", href: SIGNUP } },
@@ -202,11 +209,13 @@ function PathFinder({ reduce }) {
   };
   const restart = () => {
     save("ng-start-v1", null);
+    rememberGoal(null);
     setAnswers({ level: null, interest: null });
     setStep(0);
   };
 
   const path = PATHS[answers.level];
+  const goal = GOAL_BY_ID[answers.interest];
   const anim = {
     initial: reduce ? false : { opacity: 0, x: 24 },
     animate: { opacity: 1, x: 0 },
@@ -254,16 +263,16 @@ function PathFinder({ reduce }) {
 
             {step === 1 && (
               <motion.div key="q2" {...anim}>
-                <h3 className="text-2xl font-semibold tracking-tight text-foreground">What would you love to make first?</h3>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {INTERESTS.map((it) => {
-                    const Icon = it.icon;
+                <h3 className="text-2xl font-semibold tracking-tight text-foreground">What is your main goal here?</h3>
+                <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+                  {GOALS.map((g) => {
+                    const Icon = GOAL_ICONS[g.id] || HelpCircle;
                     return (
-                      <Option key={it.id} selected={answers.interest === it.id} onClick={() => choose("interest", it.id, 2)}>
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: "color-mix(in srgb, var(--primary) 14%, transparent)" }}>
-                          <Icon size={18} className="text-primary" aria-hidden="true" />
+                      <Option key={g.id} selected={answers.interest === g.id} onClick={() => { rememberGoal(g.id); choose("interest", g.id, 2); }}>
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: "color-mix(in srgb, var(--primary) 14%, transparent)" }}>
+                          <Icon size={17} className="text-primary" aria-hidden="true" />
                         </span>
-                        <span className="text-[15px] font-semibold text-foreground">{it.label}</span>
+                        <span className="text-[14.5px] font-semibold text-foreground">{g.label}</span>
                       </Option>
                     );
                   })}
@@ -292,8 +301,31 @@ function PathFinder({ reduce }) {
                   ))}
                 </div>
 
-                {answers.interest === "graphics" ? (
-                  <a href={GRAPHICS_ACADEMY_URL} target="_blank" rel="noopener noreferrer" className="mt-6 flex items-start gap-3 rounded-2xl border border-border p-4 transition-colors hover:border-primary" style={{ background: "color-mix(in srgb, var(--foreground) 3%, transparent)" }}>
+                {goal && (
+                  <div className="mt-6 rounded-2xl border p-4" style={{ borderColor: "color-mix(in srgb, var(--primary) 40%, var(--border))", background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}>
+                    <p className={eyebrow}>Your goal · {goal.label}</p>
+                    {goalStatus(goal.id) && <p className="mt-2 text-[14px] leading-snug text-muted-foreground">{goalStatus(goal.id)}</p>}
+                    <p className="mt-3 text-[14px] leading-snug text-foreground">
+                      <span className="font-semibold">Your first tool: CREAO. </span>
+                      <span className="text-muted-foreground">{goal.creao}</span>
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                      <a
+                        href={CREAO_URL}
+                        target="_blank"
+                        rel="noopener sponsored"
+                        className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-[13.5px] font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5 hover:text-primary-foreground"
+                      >
+                        Sign up on CREAO
+                        <ExternalLink size={13} aria-hidden="true" />
+                      </a>
+                      <span className="text-[12px] text-muted-foreground">Referral link</span>
+                    </div>
+                  </div>
+                )}
+
+                {answers.interest === "graphics" && (
+                  <a href={GRAPHICS_ACADEMY_URL} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-start gap-3 rounded-2xl border border-border p-4 transition-colors hover:border-primary" style={{ background: "color-mix(in srgb, var(--foreground) 3%, transparent)" }}>
                     <Palette size={18} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
                     <span className="text-[14px] leading-snug text-muted-foreground">
                       <span className="font-semibold text-foreground">Love graphics? </span>
@@ -301,8 +333,6 @@ function PathFinder({ reduce }) {
                       <ExternalLink size={12} className="ml-1.5 inline align-[-1px]" aria-hidden="true" />
                     </span>
                   </a>
-                ) : (
-                  <p className="mt-6 text-[14px] leading-snug text-muted-foreground">You will pick your focus when you sign up, and you can change your mind at any time.</p>
                 )}
 
                 <div className="mt-7 flex flex-wrap items-center gap-3">
