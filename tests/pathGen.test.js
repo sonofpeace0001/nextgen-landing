@@ -90,4 +90,14 @@ describe("generatePath", () => {
   it("throws on unknown entry level", () => {
     expect(() => generatePath({ tiers, days: fullDays(), entryLevel: "legend" })).toThrow();
   });
+
+  it("appends Skill Labs (day 91+) after the core path for every entry level", () => {
+    const days = fullDays();
+    for (let n = 91; n <= 95; n++) days.push({ id: `l${n}`, day_number: n, tier_id: "tg" });
+    const novice = generatePath({ tiers, days, entryLevel: "novice" });
+    expect(novice.totalDays).toBe(95);
+    expect(novice.dayNumbers.slice(-5)).toEqual([91, 92, 93, 94, 95]);
+    const adv = generatePath({ tiers, days, entryLevel: "advanced" });
+    expect(adv.totalDays).toBe(35); // 30 core + 5 labs
+  });
 });

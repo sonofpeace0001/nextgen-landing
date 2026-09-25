@@ -1,4 +1,4 @@
-import { resolveEntryLevel } from "./academyConfig.js";
+import { resolveEntryLevel, LAB_START_DAY } from "./academyConfig.js";
 
 // Pure path generation — no DB, no IO, fully unit-testable.
 // Given a track's tiers + published days and a chosen entry level, work out where
@@ -33,16 +33,18 @@ export function generatePath({ tiers, days, entryLevel }) {
   }
   const startDayNumber = Math.min(...startTierDayNumbers);
 
-  const dayNumbers = days
-    .map((d) => d.day_number)
-    .filter((n) => n >= startDayNumber)
-    .sort((a, b) => a - b)
-    .slice(0, requestedDays);
+  const allNumbers = days.map((d) => d.day_number).sort((a, b) => a - b);
+  // Core path: the next `requestedDays` published days from the start (labs excluded).
+  const core = allNumbers.filter((n) => n >= startDayNumber && n < LAB_START_DAY).slice(0, requestedDays);
+  // Skill Labs (day 91+) follow the core path for every entry level.
+  const labs = allNumbers.filter((n) => n >= LAB_START_DAY);
+  const dayNumbers = [...core, ...labs];
 
   return {
     startTierId: startTierObj.id,
     startTierSlug: startTier,
     startDayNumber,
+    labDays: labs.length, // Skill Labs appended after the core path
     requestedDays, // the planned length from config (90/60/30)
     totalDays: dayNumbers.length, // actual available given current content
     dayNumbers,
