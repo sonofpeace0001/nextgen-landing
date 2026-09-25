@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 // Anchor links to existing page sections. Adjust hrefs if section ids change.
 const NAV_LINKS = [
   { label: "What is NEXTGEN", href: "#how" },
+  { label: "Academy", href: "#academy" },
   { label: "Learning Paths", href: "#tracks" },
   { label: "Elite", href: "#plans" },
   { label: "Prompts", href: "#/prompts", badge: "Elite" },

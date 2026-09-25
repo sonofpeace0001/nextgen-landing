@@ -10,6 +10,7 @@ import { VipSection } from "./components/VipSection";
 import { TrustStrip } from "./components/TrustStrip";
 import { HowItWorksSection } from "./components/HowItWorksSection";
 import { CommunityShowcase } from "./components/CommunityShowcase";
+import { AcademyCategories } from "./components/AcademyCategories";
 
 /* ─────────────────────────────────────────────────────────────
    NEXTGEN — redesigned marketing page (visual layer only).
@@ -555,6 +556,7 @@ export default function Landing() {
       <Navbar />
       <Hero />
       <TrustStrip />
+      <AcademyCategories />
       <HowItWorksSection />
       <Tracks />
       <Resources />
