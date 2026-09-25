@@ -4,6 +4,7 @@ import Landing from "./Landing.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
 import PromptsApp from "./prompts/PromptsApp.jsx";
+import StartApp from "./start/StartApp.jsx";
 // Self-hosted font stack, matching the NEXTGEN Graphics Learning Academy site:
 // Playfair Display for display headings, Inter for body/UI copy, Montserrat
 // for eyebrows/labels/accents.
@@ -11,6 +12,7 @@ import "@fontsource/playfair-display/400.css";
 import "@fontsource/playfair-display/500.css";
 import "@fontsource/playfair-display/600.css";
 import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display/600-italic.css";
 import "@fontsource/inter/300.css";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
@@ -29,6 +31,7 @@ const arrivedFromRecovery =
 
 // Lightweight hash routing (no router dep, matching the site's hash-anchor style):
 // #/learn -> the Academy learning app; #/prompts -> the Elite Prompt Library;
+// #/start -> the guided "start here" page for new visitors;
 // everything else -> the marketing page.
 function Root() {
   const [hash, setHash] = useState(typeof window !== "undefined" ? window.location.hash : "");
@@ -40,6 +43,7 @@ function Root() {
   if (hash.startsWith("#/admin")) return <AdminApp />;
   if (arrivedFromRecovery) return <AcademyApp />;
   if (hash.startsWith("#/prompts")) return <PromptsApp />;
+  if (hash.startsWith("#/start")) return <StartApp />;
   return hash.startsWith("#/learn") ? <AcademyApp /> : <Landing />;
 }
 
