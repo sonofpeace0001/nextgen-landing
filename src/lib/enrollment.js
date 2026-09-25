@@ -69,3 +69,13 @@ export async function getMyEnrollments(supabase) {
   if (error) throw error;
   return data ?? [];
 }
+
+// Every member gets Foundations automatically. Best-effort: a failure must never
+// block the Academy from loading.
+export async function ensureFoundations(supabase) {
+  try {
+    await supabase.rpc("ensure_foundations");
+  } catch {
+    /* the Academy still works without it */
+  }
+}
