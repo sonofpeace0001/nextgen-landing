@@ -12,7 +12,7 @@ export async function resolvePlan(supabase, enrollment) {
 export async function getMySubmissions(supabase, enrollmentId) {
   const { data, error } = await supabase
     .from("submission")
-    .select("day_id, status, score, submitted_at")
+    .select("id, day_id, status, score, submitted_at, feedback, ai_scores, ai_feedback, ai_model, attempt")
     .eq("enrollment_id", enrollmentId);
   if (error) throw error;
   return data ?? [];
