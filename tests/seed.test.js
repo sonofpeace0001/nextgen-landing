@@ -1,15 +1,17 @@
 // Verifies the seeded AI Basic tier is present, published, and complete.
-// Reads as anon (public content). Skips without env.
+// Reads as anon (public content: only the free days of General AI) and as the service role (full content). Skips without env.
 
 import { describe, it, expect } from "vitest";
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.SUPABASE_URL;
 const anonKey = process.env.SUPABASE_ANON_KEY;
-const hasEnv = Boolean(url && anonKey);
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const hasEnv = Boolean(url && anonKey && serviceKey);
 const suite = hasEnv ? describe : describe.skip;
 
 const anon = hasEnv ? createClient(url, anonKey, { auth: { persistSession: false } }) : null;
+const admin = hasEnv ? createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } }) : null;
 
 suite("seeded AI Basic tier", () => {
   it("AI track is published with a full Basic tier", async () => {
@@ -19,13 +21,21 @@ suite("seeded AI Basic tier", () => {
     const { data: basic } = await anon.from("tier").select("id").eq("track_id", track.id).eq("slug", "basic").maybeSingle();
     expect(basic).toBeTruthy();
 
-    const { data: days } = await anon
+    const { data: days } = await admin
       .from("day")
       .select("day_number")
       .eq("track_id", track.id)
       .eq("tier_id", basic.id)
       .eq("is_published", true);
     expect(days.length).toBeGreaterThanOrEqual(20);
+  });
+
+  it("anonymous visitors only see the free days of General AI", async () => {
+    const { data: track } = await anon.from("track").select("id, title, free_days").eq("slug", "ai").maybeSingle();
+    expect(track.title).toBe("General AI");
+    expect(track.free_days).toBe(9);
+    const { data: days } = await anon.from("day").select("day_number").eq("track_id", track.id).eq("is_published", true);
+    expect(Math.max(...days.map((d) => d.day_number))).toBeLessThanOrEqual(9);
   });
 
   it("each seeded day has all four parts and an auto-graded check", async () => {
