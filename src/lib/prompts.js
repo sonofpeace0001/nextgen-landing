@@ -1,5 +1,4 @@
 import { supabase } from "./supabase.js";
-import { fetchSiteSettings } from "./settings.js";
 
 // Categories + their subcategories in ONE query (embedded resource), so opening
 // the library never costs more than a single round trip before a subcategory
@@ -23,15 +22,4 @@ export async function fetchPromptsForSubcategory(subcategoryId) {
     .order("sort_order");
   if (error) throw error;
   return data ?? [];
-}
-
-// Light gating, not security: this only decides whether to show the library UI
-// in this browser tab. The prompt tables are already readable by anon via RLS
-// (see the migration), so the code is a members-only courtesy gate, not an
-// access-control boundary. Never log the code itself, in success or failure.
-export async function checkElitePromptCode(inputCode) {
-  const settings = await fetchSiteSettings();
-  const real = (settings.elite_prompt_code ?? "").trim().toLowerCase();
-  const attempt = (inputCode ?? "").trim().toLowerCase();
-  return real.length > 0 && attempt === real;
 }

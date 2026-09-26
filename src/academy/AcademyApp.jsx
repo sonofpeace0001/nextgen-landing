@@ -13,6 +13,7 @@ import { recalledGoals, saveMyGoals } from "../lib/goalTracks.js";
 import { getMyProfile, redeemCode, trackTierAvailability } from "../lib/profile.js";
 import { levelState } from "../lib/levels.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
+import { getMyAccess, unlockAccess } from "../lib/access.js";
 import { Markdown } from "../components/Markdown.jsx";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
@@ -225,6 +226,10 @@ function EnrollCard({ onEnrolled }) {
   const [code, setCode] = useState("");
   const [redeemBusy, setRedeemBusy] = useState(false);
   const [redeemMsg, setRedeemMsg] = useState(null); // { ok, text }
+  const [hasAccess, setHasAccess] = useState(false);
+  const [unlockCode, setUnlockCode] = useState("");
+  const [unlockBusy, setUnlockBusy] = useState(false);
+  const [unlockMsg, setUnlockMsg] = useState("");
 
   useEffect(() => {
     listPublishedTracks(supabase).then((all) => {
@@ -236,6 +241,7 @@ function EnrollCard({ onEnrolled }) {
       if (match || t[0]) setTrackId((match || t[0]).id);
     }).catch((e) => setError(e.message));
     getMyProfile(supabase).then((p) => setIsElite(!!p?.is_elite)).catch(() => {});
+    getMyAccess().then((a) => setHasAccess(a.full)).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -243,8 +249,30 @@ function EnrollCard({ onEnrolled }) {
     trackTierAvailability(supabase, trackId).then(setTierHasDays).catch(() => setTierHasDays({}));
   }, [trackId]);
 
+  const selectedTrack = tracks.find((x) => x.id === trackId);
+  const locked = !!selectedTrack?.requires_access && !hasAccess;
   const stateFor = (lvl) => levelState({ entryLevel: lvl, isElite, tierHasDays });
-  const selState = trackId ? stateFor(level) : "coming_soon";
+  const selState = trackId ? (locked ? "locked" : stateFor(level)) : "coming_soon";
+
+  const unlock = async () => {
+    setUnlockMsg("");
+    setUnlockBusy(true);
+    try {
+      const ok = await unlockAccess(unlockCode);
+      if (ok) {
+        setHasAccess(true);
+        setUnlockCode("");
+        getMyProfile(supabase).then((p) => setIsElite(!!p?.is_elite)).catch(() => {});
+        if (trackId) trackTierAvailability(supabase, trackId).then(setTierHasDays).catch(() => {});
+      } else {
+        setUnlockMsg("That code is not valid.");
+      }
+    } catch (e) {
+      setUnlockMsg(e.message || "Could not check that code.");
+    } finally {
+      setUnlockBusy(false);
+    }
+  };
 
   const enroll = async () => {
     setError("");
@@ -279,6 +307,8 @@ function EnrollCard({ onEnrolled }) {
     ? "Enrolling…"
     : selState === "enrollable"
     ? "Enroll"
+    : selState === "locked"
+    ? "Locked: Elite or a code"
     : selState === "requires_elite"
     ? "Redeem a code to unlock"
     : "Coming soon";
@@ -299,13 +329,33 @@ function EnrollCard({ onEnrolled }) {
               background: trackId === t.id ? "rgba(168,85,247,0.08)" : "transparent", color: "#F5F5F7",
             }}
           >
-            <div style={{ fontSize: 15, fontWeight: 600 }}>{t.title}</div>
+            <div style={{ fontSize: 15, fontWeight: 600, display: "flex", justifyContent: "space-between", gap: 8 }}>
+              <span>{t.title}</span>
+              {t.requires_access && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>Elite or code</span>}
+            </div>
             {t.description && <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 3 }}>{t.description}</div>}
           </button>
         ))}
         {tracks.length === 0 && <p style={{ fontSize: 13, color: "#6B7280" }}>No published tracks yet.</p>}
       </div>
 
+      {locked && (
+        <div style={{ marginBottom: 18, padding: 14, border: BORDER, borderRadius: 10 }}>
+          <p style={{ fontSize: 14, color: "#F5F5F7", fontWeight: 600, margin: "0 0 4px" }}>{selectedTrack.title} is for Elite members</p>
+          <p style={{ fontSize: 13, color: "#9CA3AF", margin: "0 0 10px", lineHeight: 1.5 }}>
+            Foundations is free. Every category path unlocks with Elite or an access code. <a href="#plans" style={{ color: "#A855F7" }}>See Elite</a>
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input value={unlockCode} onChange={(e) => setUnlockCode(e.target.value)} placeholder="Access code" autoCapitalize="off" autoCorrect="off" spellCheck="false" style={{ ...input, marginBottom: 0 }} />
+            <button style={{ ...primaryBtn, opacity: unlockBusy || !unlockCode.trim() ? 0.6 : 1 }} onClick={unlock} disabled={unlockBusy || !unlockCode.trim()}>
+              {unlockBusy ? "…" : "Unlock"}
+            </button>
+          </div>
+          {unlockMsg && <p style={{ fontSize: 13, color: "#F87171", margin: "8px 0 0" }}>{unlockMsg}</p>}
+        </div>
+      )}
+
+      {!locked && (
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
         {LEVELS.map((l) => {
           const st = stateFor(l.key);
@@ -335,6 +385,8 @@ function EnrollCard({ onEnrolled }) {
           );
         })}
       </div>
+
+      )}
 
       {selState === "requires_elite" && (
         <div style={{ marginBottom: 18 }}>

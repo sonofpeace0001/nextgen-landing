@@ -11,23 +11,6 @@ const CATEGORIES = [
 ];
 const KINDS = [{ id: "all", label: "All types" }, ...Object.entries(KIND_LABEL).map(([id, label]) => ({ id, label }))];
 
-function TopBar() {
-  return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <a href="#top" className="flex items-center gap-2.5" aria-label="NEXTGEN home">
-          <img src="/logo.png" alt="" aria-hidden="true" className="h-7 w-auto" />
-          <span className="font-heading text-[17px] font-semibold tracking-tight text-foreground">NEXTGEN</span>
-        </a>
-        <nav className="flex items-center gap-5 text-sm text-muted-foreground">
-          <a href="#/learn" className="transition-colors hover:text-foreground">Academy</a>
-          <a href="#top" className="transition-colors hover:text-foreground">Home</a>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
 function Chip({ active, onClick, children }) {
   return (
     <button
@@ -91,7 +74,7 @@ function ResourceCard({ r, label }) {
   );
 }
 
-export default function ResourcesApp() {
+export function ResourceBrowser() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState("");
   const [category, setCategory] = useState("all");
@@ -99,7 +82,6 @@ export default function ResourcesApp() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    document.title = "Resource Library | NEXTGEN";
     fetchResources().then(setItems).catch(() => setError("Could not load the library. Try again in a moment."));
   }, []);
 
@@ -107,16 +89,12 @@ export default function ResourcesApp() {
   const shown = useMemo(() => (items ? filterResources(items, { category, kind, query }) : []), [items, category, kind, query]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground" style={{ fontFamily: "'Inter',system-ui,sans-serif" }}>
-      <TopBar />
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Free for everyone</p>
-        <h1 className="mt-3 font-heading text-4xl font-semibold tracking-tight">Resource Library</h1>
-        <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-muted-foreground">
-          Glossaries, tool guides, templates, checklists and how-tos for every NEXTGEN category. Open a card, read it, and copy what you need.
-        </p>
-
-        <label className="mt-8 block">
+    <div>
+      <p className="max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
+        Glossaries, tool guides, templates, checklists, how-tos and sample prompts for every NEXTGEN category. Open a card, read it, and copy what you need.
+      </p>
+      <div>
+        <label className="mt-6 block">
           <span className="sr-only">Search the library</span>
           <input
             type="search"
@@ -147,10 +125,7 @@ export default function ResourcesApp() {
           ))}
         </div>
 
-        <p className="mt-10 text-sm text-muted-foreground">
-          Looking for ready-to-paste prompts? The <a href="#/prompts" className="underline underline-offset-4 hover:text-foreground">Prompt Library</a> has hundreds for Elite members.
-        </p>
-      </main>
+      </div>
     </div>
   );
 }

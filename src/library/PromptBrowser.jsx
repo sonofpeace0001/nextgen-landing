@@ -1,94 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Copy, Check } from "lucide-react";
-import {
-  fetchCategoriesWithSubcategories,
-  fetchPromptsForSubcategory,
-  checkElitePromptCode,
-} from "../lib/prompts.js";
-
-// sessionStorage (NOT localStorage) so the unlock only lasts this browser tab
-// session — closing the tab re-locks the library next time.
-const UNLOCK_KEY = "nextgen_prompts_unlocked";
-
-function TopBar() {
-  return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <a href="#top" className="flex items-center gap-2.5" aria-label="NEXTGEN home">
-          <img src="/logo.png" alt="" aria-hidden="true" className="h-7 w-auto" />
-          <span className="font-heading text-[17px] font-semibold tracking-tight text-foreground">NEXTGEN</span>
-        </a>
-        <a href="#top" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-          back to NEXTGEN
-        </a>
-      </div>
-    </header>
-  );
-}
-
-function LockedState({ onUnlocked }) {
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setError("");
-    if (!code.trim()) return;
-    setBusy(true);
-    try {
-      const ok = await checkElitePromptCode(code);
-      if (ok) {
-        sessionStorage.setItem(UNLOCK_KEY, "1");
-        onUnlocked();
-      } else {
-        setError("that code isn't right — check the Elite channel for the current one.");
-      }
-    } catch {
-      // Never leak the underlying error (or the code) — just a plain retry message.
-      setError("could not check that code right now. try again in a moment.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className="mx-auto flex max-w-md flex-col items-center px-6 py-24 text-center sm:py-32">
-      <h1 className="font-heading text-3xl font-semibold tracking-tight text-foreground">Elite Prompt Library</h1>
-      <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-        a growing library of prompts for writing, image, video, agents and more. access is for NEXTGEN Elite
-        members.
-      </p>
-
-      <form onSubmit={submit} className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Elite code"
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck="false"
-          className="h-11 flex-1 rounded-lg border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-        />
-        <button
-          type="submit"
-          disabled={busy || !code.trim()}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-        >
-          {busy ? "checking…" : "Unlock"}
-        </button>
-      </form>
-      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
-
-      <a
-        href="#plans"
-        className="mt-8 inline-flex min-h-[44px] items-center text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-      >
-        how do I become Elite?
-      </a>
-    </div>
-  );
-}
+import { fetchCategoriesWithSubcategories, fetchPromptsForSubcategory } from "../lib/prompts.js";
 
 function DifficultyPill({ difficulty }) {
   return (
@@ -146,7 +58,7 @@ function PromptCard({ prompt }) {
   );
 }
 
-function LibraryState() {
+export function PromptBrowser() {
   const [categories, setCategories] = useState(null);
   const [categoriesError, setCategoriesError] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
@@ -206,7 +118,7 @@ function LibraryState() {
 
   if (categoriesError) {
     return (
-      <div className="mx-auto max-w-md px-6 py-24 text-center">
+      <div className="py-16 text-center">
         <p className="text-sm text-muted-foreground">{categoriesError}</p>
       </div>
     );
@@ -214,19 +126,15 @@ function LibraryState() {
 
   if (!categories) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-24 text-center">
+      <div className="py-16 text-center">
         <p className="text-sm text-muted-foreground">loading…</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-      <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-        Elite Prompt Library
-      </h1>
-
-      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-[200px_1fr] md:gap-10">
+    <div>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-[200px_1fr] md:gap-10">
         {/* Categories: sidebar on desktop, horizontal tabs on mobile */}
         <nav className="flex gap-2 overflow-x-auto pb-2 md:flex-col md:overflow-visible md:pb-0">
           {categories.map((cat) => (
@@ -300,15 +208,3 @@ function LibraryState() {
   );
 }
 
-export default function PromptsApp() {
-  const [unlocked, setUnlocked] = useState(
-    typeof window !== "undefined" && sessionStorage.getItem(UNLOCK_KEY) === "1",
-  );
-
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <TopBar />
-      {unlocked ? <LibraryState /> : <LockedState onUnlocked={() => setUnlocked(true)} />}
-    </div>
-  );
-}

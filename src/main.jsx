@@ -3,9 +3,8 @@ import { createRoot } from "react-dom/client";
 import Landing from "./Landing.jsx";
 import AcademyApp from "./academy/AcademyApp.jsx";
 import AdminApp from "./admin/AdminApp.jsx";
-import PromptsApp from "./prompts/PromptsApp.jsx";
 import StartApp from "./start/StartApp.jsx";
-import ResourcesApp from "./resources/ResourcesApp.jsx";
+import LibraryApp from "./library/LibraryApp.jsx";
 import LegalApp from "./legal/LegalApp.jsx";
 // Self-hosted font stack, matching the NEXTGEN Graphics Learning Academy site:
 // Playfair Display for display headings, Inter for body/UI copy, Montserrat
@@ -44,9 +43,8 @@ function Root() {
   }, []);
   if (hash.startsWith("#/admin")) return <AdminApp />;
   if (arrivedFromRecovery) return <AcademyApp />;
-  if (hash.startsWith("#/prompts")) return <PromptsApp />;
   if (hash.startsWith("#/start")) return <StartApp />;
-  if (hash.startsWith("#/resources")) return <ResourcesApp />;
+  if (hash.startsWith("#/library") || hash.startsWith("#/resources") || hash.startsWith("#/prompts")) return <LibraryApp />;
   if (hash.startsWith("#/privacy")) return <LegalApp page="privacy" />;
   if (hash.startsWith("#/terms")) return <LegalApp page="terms" />;
   return hash.startsWith("#/learn") ? <AcademyApp /> : <Landing />;
