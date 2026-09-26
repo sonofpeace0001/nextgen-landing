@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 import { getMyAccess, unlockAccess } from "../lib/access.js";
 import { onAuthChange } from "../lib/auth.js";
+import { TrialBanner } from "../components/TrialBanner.jsx";
 import { ResourceBrowser } from "./ResourceBrowser.jsx";
 import { PromptBrowser } from "./PromptBrowser.jsx";
 
@@ -50,7 +51,7 @@ function LockedState({ signedIn, onUnlocked }) {
       </span>
       <h1 className="mt-5 font-heading text-3xl font-semibold tracking-tight text-foreground">NEXTGEN Library</h1>
       <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
-        Hundreds of ready-to-paste prompts plus glossaries, tool guides, templates and checklists for every category. The Library is for Elite members and people with an access code.
+        Hundreds of ready-to-paste prompts plus glossaries, tool guides, templates and checklists for every category. The Library is for Elite and VIP members. Have an access code or a 14-day trial code? Enter it below.
       </p>
 
       {!signedIn ? (
@@ -68,7 +69,7 @@ function LockedState({ signedIn, onUnlocked }) {
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Access code"
+            placeholder="Access or trial code"
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck="false"
@@ -90,7 +91,7 @@ function LockedState({ signedIn, onUnlocked }) {
         href="#plans"
         className="mt-8 inline-flex min-h-[44px] items-center text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
-        How do I become Elite?
+        How do I become Elite or VIP?
       </a>
     </div>
   );
@@ -116,13 +117,18 @@ export default function LibraryApp() {
   return (
     <div className="min-h-screen bg-background text-foreground" style={{ fontFamily: "'Inter',system-ui,sans-serif" }}>
       <TopBar />
+      {!state.loading && state.signedIn && (
+        <div className="mx-auto max-w-6xl px-6 pt-4">
+          <TrialBanner />
+        </div>
+      )}
       {state.loading ? (
         <p className="py-24 text-center text-sm text-muted-foreground">Loading…</p>
       ) : !state.full ? (
         <LockedState signedIn={state.signedIn} onUnlocked={refresh} />
       ) : (
         <main className="mx-auto max-w-6xl px-6 py-10 sm:py-14">
-          <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Elite and access-code members</p>
+          <p className="text-[13px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Elite, VIP and trial members</p>
           <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">NEXTGEN Library</h1>
           <div className="mt-6 flex gap-2" role="tablist" aria-label="Library sections">
             {[

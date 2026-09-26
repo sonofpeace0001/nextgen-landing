@@ -57,7 +57,8 @@ Deno.serve(async (req) => {
         const count = Math.min(Math.max(Number(payload.count ?? 1), 1), 100);
         const rows = Array.from({ length: count }, () => ({
           code: genCode(),
-          grants: payload.grants ?? "elite",
+          grants: payload.grants === "trial" ? "trial" : "elite",
+          trial_days: payload.grants === "trial" ? Math.min(Math.max(Number(payload.trial_days ?? 14), 1), 90) : null,
           max_uses: Number(payload.max_uses ?? 1),
           expires_at: payload.expires_at ?? null,
           created_by: user.id,
@@ -90,13 +91,19 @@ Deno.serve(async (req) => {
       // ── Members ──
       case "member.list": {
         const [{ data: members }, { data: enrollments }] = await Promise.all([
-          db.from("profile").select("id, email, display_name, is_elite, is_admin, created_at").order("created_at"),
+          db.from("profile").select("id, email, display_name, is_elite, is_vip, trial_ends_at, is_admin, created_at").order("created_at"),
           db.from("enrollment").select("user_id, track_id, entry_level, current_day, total_days, status"),
         ]);
         return json({ members, enrollments });
       }
       case "member.setElite": {
         const { error } = await db.from("profile").update({ is_elite: !!payload.is_elite }).eq("id", payload.user_id);
+        if (error) throw error;
+        return json({ ok: true });
+      }
+
+      case "member.setVip": {
+        const { error } = await db.from("profile").update({ is_vip: !!payload.is_vip }).eq("id", payload.user_id);
         if (error) throw error;
         return json({ ok: true });
       }

@@ -12,7 +12,7 @@ NEXTGEN is a learning community and academy. This page explains what we collect,
 ## What we collect
 
 - **Account:** your email address and a password (stored securely by our sign-in provider, never in plain text), and an optional display name.
-- **Your goals and progress:** the goals you choose, your enrolments, which days you have finished, scores and streaks.
+- **Your goals and progress:** the goals you choose, your enrolments, which days you have finished, scores and streaks, and, if you use a free trial, the date it ends.
 - **Your submissions:** the text and links you submit for assignments, and the scores and feedback you receive.
 - **Scoring records:** for AI-scored days, a log of when a submission was scored, which model scored it and the outcome, used to prevent abuse and limit cost.
 - **On your device:** your theme choice and, if you pick a goal before signing in, that goal, saved in your browser.
@@ -90,6 +90,10 @@ Some links, including CREAO links, are referral links and we may receive a benef
 ## Paid features
 
 Where we offer paid features such as Elite, the price and what is included are shown where they are offered. Read them before you pay.
+
+## Free trials
+
+A free trial code gives full access to the Academy paths and the Library for 14 days from the moment you enter it. You can use one trial per person. When it ends, access to Elite and VIP content ends unless you join Elite or VIP; your account, progress and submissions are kept. We may show reminders while a trial is running.
 
 ## Availability and changes
 
