@@ -49,6 +49,7 @@ export function VipSection() {
   const checkoutUrl = settings?.vip_checkout_url ?? VIP_CHECKOUT_URL;
   const waitlistUrl = settings?.vip_waitlist_url ?? VIP_WAITLIST_URL;
 
+  const live = (u) => (u && u.trim() && u.trim() !== "#" ? u : DISCORD_URL); // never a dead "#"
   const noDate = intakeDate === "TBA";
   const full = seatsLeft <= 0;
   const waitlistMode = noDate || full;
@@ -87,7 +88,8 @@ export function VipSection() {
 
         <div className="mt-6 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
           <a
-            href={waitlistMode ? waitlistUrl : checkoutUrl}
+            href={live(waitlistMode ? waitlistUrl : checkoutUrl)}
+            {...(live(waitlistMode ? waitlistUrl : checkoutUrl) === DISCORD_URL ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 motion-reduce:transition-none"
           >
             {waitlistMode ? "join the waitlist" : "reserve a seat"}
