@@ -78,8 +78,10 @@ export function TrialBanner() {
       style={{
         position: "sticky", top: 0, zIndex: 20, width: "100%", boxSizing: "border-box",
         display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12,
-        padding: "12px 16px", borderRadius: 12, border: `1px solid ${tone.bd}`, background: tone.bg, color: tone.fg,
-        backdropFilter: "blur(6px)",
+        padding: "12px 16px", borderRadius: 12, border: `1px solid ${tone.bd}`,
+        // Solid dark base under the tint so the text is readable in both light and dark themes.
+        background: `linear-gradient(${tone.bg}, ${tone.bg}), #150a24`, color: tone.fg,
+        boxShadow: "0 4px 18px rgba(0,0,0,0.25)",
       }}
     >
       <div style={{ minWidth: 0, flex: "1 1 260px" }}>
