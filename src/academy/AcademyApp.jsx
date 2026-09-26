@@ -13,6 +13,7 @@ import { recalledGoals, saveMyGoals } from "../lib/goalTracks.js";
 import { getMyProfile, redeemCode, trackTierAvailability } from "../lib/profile.js";
 import { levelState } from "../lib/levels.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
+import { Markdown } from "../components/Markdown.jsx";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
 const BORDER = "1px solid rgba(255,255,255,0.08)";
@@ -368,6 +369,7 @@ function EnrollCard({ onEnrolled }) {
   );
 }
 
+const lessonText = { color: "#D1D5DB", fontSize: 15, marginTop: 10 };
 const lessonPre = {
   whiteSpace: "pre-wrap",
   fontFamily: "inherit",
@@ -721,12 +723,12 @@ function LessonView({ enrollment, track, onBack }) {
           <Section title="What to learn" body={content.objective} />
           <div style={card}>
             <span style={label}>Lesson</span>
-            <pre style={lessonPre}>{content.lesson_md}</pre>
+            <Markdown text={content.lesson_md} style={lessonText} />
           </div>
           <Section title="What to improve" body={content.skill_focus} />
           <div style={card}>
             <span style={label}>Assignment</span>
-            <pre style={lessonPre}>{content.assignment_md}</pre>
+            <Markdown text={content.assignment_md} style={lessonText} />
             {Array.isArray(content.rubric) && content.rubric.length > 0 && (
               <div style={{ marginTop: 14 }}>
                 <span style={label}>Rubric</span>
