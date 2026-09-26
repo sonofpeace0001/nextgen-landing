@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 // TODO: replace with the real "Join free" link/route.
 const JOIN_URL = "#/learn";
-// TODO: replace with the real "How Elite works" Elite-section anchor.
-const ELITE_ANCHOR = "#elite";
+// "How Elite works" goes to the FAQ, which explains Elite and how it is earned.
+const ELITE_ANCHOR = "#faq";
 
 const FREE_FEATURES = [
   "Learn AI from zero",

@@ -52,23 +52,23 @@ export function TrialBanner() {
     if (ms < DAY) {
       tone = { bg: "rgba(239,68,68,0.16)", bd: "rgba(248,113,113,0.7)", fg: "#FEE2E2" };
       headline = `Your free trial ends in ${h}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s`;
-      sub = "Join Elite or VIP now so you do not lose access to your paths, the Library and your progress.";
+      sub = "Earn Elite or join VIP now so you do not lose access to your paths and the Library. Your progress is saved either way.";
     } else if (d <= 3) {
       tone = { bg: "rgba(239,68,68,0.14)", bd: "rgba(248,113,113,0.6)", fg: "#FEE2E2" };
       headline = `Your free trial ends in ${plural(d, "day")} ${plural(h, "hour")}`;
-      sub = "Join Elite or VIP before it ends so you can keep learning without a break.";
+      sub = "Earn Elite (by contributing) or join VIP before it ends so you can keep learning without a break.";
     } else if (d <= 7) {
       tone = { bg: "rgba(245,158,11,0.14)", bd: "rgba(251,191,36,0.6)", fg: "#FEF3C7" };
       headline = `${plural(d, "day")} ${plural(h, "hour")} left of your free trial`;
-      sub = "Keep going. Join Elite or VIP to keep every path and the Library after it ends.";
+      sub = "Keep going. Earn Elite or join VIP to keep every path and the Library after it ends.";
     } else {
       headline = `Free trial: ${plural(d, "day")} ${plural(h, "hour")} left`;
-      sub = "You have full access while it lasts. Join Elite or VIP to keep it after it ends.";
+      sub = "You have full access while it lasts. Elite is earned by contributing; VIP is paid 1-on-1 guidance. Either keeps your access.";
     }
   } else {
     tone = { bg: "rgba(239,68,68,0.14)", bd: "rgba(248,113,113,0.6)", fg: "#FEE2E2" };
     headline = "Your free trial has ended";
-    sub = "Join Elite or VIP to unlock your paths and the Library again. Your progress is saved.";
+    sub = "Earn Elite or join VIP to unlock your paths and the Library again. Your progress is saved.";
   }
 
   return (
@@ -87,11 +87,11 @@ export function TrialBanner() {
         <div style={{ fontSize: 13, opacity: 0.9, marginTop: 2, lineHeight: 1.45 }}>{sub}</div>
       </div>
       <div style={{ display: "flex", gap: 8 }}>
-        <a href="#plans" style={{ background: "#7C3AED", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, padding: "9px 16px", borderRadius: 9 }}>
-          Join Elite
+        <a href="#faq" style={{ background: "#7C3AED", color: "#fff", textDecoration: "none", fontWeight: 700, fontSize: 14, padding: "9px 16px", borderRadius: 9 }}>
+          How to get Elite
         </a>
         <a href="#vip" style={{ border: `1px solid ${tone.bd}`, color: tone.fg, textDecoration: "none", fontWeight: 600, fontSize: 14, padding: "9px 14px", borderRadius: 9 }}>
-          See VIP
+          Get VIP
         </a>
       </div>
     </div>

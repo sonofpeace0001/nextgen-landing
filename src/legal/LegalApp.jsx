@@ -89,11 +89,11 @@ Some links, including CREAO links, are referral links and we may receive a benef
 
 ## Paid features
 
-Where we offer paid features such as Elite, the price and what is included are shown where they are offered. Read them before you pay.
+Elite is earned through contribution and cannot be bought. Paid programmes such as VIP show their price and what is included where they are offered; read them before you pay.
 
 ## Free trials
 
-A free trial code gives full access to the Academy paths and the Library for 14 days from the moment you enter it. You can use one trial per person. When it ends, access to Elite and VIP content ends unless you join Elite or VIP; your account, progress and submissions are kept. We may show reminders while a trial is running.
+A free trial code gives full access to the Academy paths and the Library for 14 days from the moment you enter it. You can use one trial per person. When it ends, access to Elite and VIP content ends unless you have Elite or VIP; your account, progress and submissions are kept. We may show reminders while a trial is running.
 
 ## Availability and changes
 
