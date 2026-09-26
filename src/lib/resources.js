@@ -6,6 +6,7 @@ export const KIND_LABEL = {
   templates: "Templates",
   checklist: "Checklist",
   guide: "Guide",
+  prompts: "Sample prompts",
 };
 
 // One query: the whole library is small (a few dozen documents), so filtering happens in the browser.
