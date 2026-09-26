@@ -6,6 +6,7 @@ import AdminApp from "./admin/AdminApp.jsx";
 import PromptsApp from "./prompts/PromptsApp.jsx";
 import StartApp from "./start/StartApp.jsx";
 import ResourcesApp from "./resources/ResourcesApp.jsx";
+import LegalApp from "./legal/LegalApp.jsx";
 // Self-hosted font stack, matching the NEXTGEN Graphics Learning Academy site:
 // Playfair Display for display headings, Inter for body/UI copy, Montserrat
 // for eyebrows/labels/accents.
@@ -46,6 +47,8 @@ function Root() {
   if (hash.startsWith("#/prompts")) return <PromptsApp />;
   if (hash.startsWith("#/start")) return <StartApp />;
   if (hash.startsWith("#/resources")) return <ResourcesApp />;
+  if (hash.startsWith("#/privacy")) return <LegalApp page="privacy" />;
+  if (hash.startsWith("#/terms")) return <LegalApp page="terms" />;
   return hash.startsWith("#/learn") ? <AcademyApp /> : <Landing />;
 }
 
