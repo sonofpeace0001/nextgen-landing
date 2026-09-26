@@ -274,7 +274,7 @@ function ReviewTab() {
 
 const SETTINGS_FIELDS = [
   { key: "vip_intake_date", label: "VIP cohort intake date", hint: 'e.g. "March 3", or "TBA" to show the waitlist instead of checkout' },
-  { key: "elite_prompt_code", label: "Elite prompt library code", hint: "the code Elite members enter to unlock the prompt library" },
+  { key: "elite_prompt_code", label: "Library and category access code", hint: "members who enter this code unlock the Library and every category after Foundations" },
 ];
 
 function SettingsTab() {

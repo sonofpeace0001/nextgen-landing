@@ -9,8 +9,7 @@ const NAV_LINKS = [
   { label: "Academy", href: "#academy" },
   { label: "Learning Paths", href: "#tracks" },
   { label: "Elite", href: "#plans" },
-  { label: "Resources", href: "#/resources" },
-  { label: "Prompts", href: "#/prompts", badge: "Elite" },
+  { label: "Library", href: "#/library", badge: "Elite" },
   { label: "VIP", href: "#vip" },
   { label: "FAQ", href: "#faq" },
 ];

@@ -13,10 +13,10 @@ Live at https://nextgenai-web.vercel.app. Last updated 26 September 2026.
 | Approval gate | Only approved (`scored`) work unlocks the next day. Admin > Review shows AI score, criteria, feedback, confidence and flags. |
 | Human review | Film, Motion and Audio project days (video/audio cannot be scored by the AI) and any low-confidence or flagged result. |
 | Discord share | `share-to-discord`: opt-in, score 80+, once per submission. Webhook in the `DISCORD_WEBHOOK_URL` secret. |
-| Resource Library | Free at `#/resources`: 62 guides, glossaries, tool guides, templates, checklists and sample prompts. |
-| Prompt Library | `#/prompts`, behind the Elite code: 500+ prompts. |
+| Library | One page at `#/library` (old `#/resources` and `#/prompts` links go there): 62 guides, glossaries, tool guides, templates, checklists and sample prompts, plus 500+ prompts. **Locked**: Elite members, admins and anyone who enters the access code. |
+| Access lock | Foundations and the original AI track are free for signed-in members. The nine category paths and the Library need Elite or the access code (`site_settings.elite_prompt_code`, or a single-use redeem code). Enforced in the database (`has_full_access()`, `unlock_access()`); the shared code is no longer publicly readable. Wrong-code attempts are rate limited. |
 | Privacy and Terms | `#/privacy`, `#/terms`. DRAFTS written from what the app does; have a professional review them and add a contact address. |
-| Home | NEXTGEN Academy section with a card for each category. |
+| Home | NEXTGEN Academy section with a card for each category (locked paths are labelled Elite or code). |
 
 ## Do these first
 

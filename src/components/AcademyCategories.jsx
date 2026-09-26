@@ -49,7 +49,7 @@ export function AcademyCategories() {
           Pick what you want to build.
         </h2>
         <p style={{ fontSize: 17, lineHeight: 1.6, color: "var(--muted-foreground)", maxWidth: 600, marginBottom: 48 }}>
-          Every path starts with a short Foundations course, then runs from Basic to Grandmaster, with extra Skill Labs for the skills clients ask for. Each ends with something real you made, scored with clear feedback.
+          Foundations is free for everyone. Every category path then unlocks with Elite or an access code and runs from Basic to Grandmaster, with extra Skill Labs for the skills clients ask for. Each ends with something real you made, scored with clear feedback.
         </p>
         <div className="ng-acad-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18 }}>
           {CATEGORIES.map((c, i) => {
