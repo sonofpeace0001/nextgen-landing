@@ -731,7 +731,13 @@ function UnlockBox({ title, text, onUnlocked }) {
 function LessonView({ enrollment, track, onBack }) {
   const [hasAccess, setHasAccess] = useState(true);
   useEffect(() => {
-    getMyAccess().then((a) => setHasAccess(a.full)).catch(() => {});
+    // Full access, or a grant for this very track (members who were already past the free days).
+    Promise.all([
+      getMyAccess(),
+      supabase.from("track_grant").select("track_id").eq("track_id", enrollment.track_id).maybeSingle(),
+    ])
+      .then(([a, g]) => setHasAccess(a.full || !!g?.data))
+      .catch(() => {});
   }, []);
   const [view, setView] = useState([]);
   const [subs, setSubs] = useState([]);
