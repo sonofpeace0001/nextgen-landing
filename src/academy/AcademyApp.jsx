@@ -161,6 +161,11 @@ function AuthCard() {
       <button style={{ ...primaryBtn, width: "100%", opacity: busy ? 0.6 : 1 }} onClick={submit} disabled={busy}>
         {busy ? "…" : mode === "signup" ? "Sign up" : mode === "forgot" ? "Send reset link" : "Sign in"}
       </button>
+      {mode === "signup" && (
+        <p style={{ fontSize: 12, color: "#9CA3AF", margin: "10px 0 0", lineHeight: 1.5 }}>
+          By creating an account you agree to the <a href="#/terms" style={{ color: "#A855F7" }}>Terms</a> and the <a href="#/privacy" style={{ color: "#A855F7" }}>Privacy notice</a>.
+        </p>
+      )}
       <p style={{ fontSize: 13, color: "#9CA3AF", marginTop: 16, textAlign: "center" }}>
         {mode === "signup" ? "Already have an account?" : mode === "forgot" ? "Remembered it?" : "New here?"}{" "}
         <button
@@ -577,6 +582,11 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
 
   return (
     <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+      {day.ai_evaluate && (
+        <p style={{ fontSize: 12, color: "#9CA3AF", margin: 0, lineHeight: 1.5 }}>
+          This assignment is scored by AI. Your text and image links are sent to our AI provider to be scored (not your email). Leave out private details. You can ask a person to re-check any score. <a href="#/privacy" style={{ color: "#A855F7" }}>Privacy</a>
+        </p>
+      )}
       {mcq && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {mcq.items.map((q, qi) => (

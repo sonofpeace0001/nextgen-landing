@@ -89,6 +89,12 @@ export function Footer() {
         <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             © {year} NEXTGEN{" "}
+            <a href="#/privacy" className="text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none">
+              · Privacy
+            </a>{" "}
+            <a href="#/terms" className="text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none">
+              · Terms
+            </a>{" "}
             <a href="#/admin" className="text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none">
               · Admin
             </a>
