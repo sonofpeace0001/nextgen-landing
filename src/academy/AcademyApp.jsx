@@ -332,6 +332,7 @@ function EnrollCard({ onEnrolled }) {
             <div style={{ fontSize: 15, fontWeight: 600, display: "flex", justifyContent: "space-between", gap: 8 }}>
               <span>{t.title}</span>
               {t.requires_access && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>Elite or code</span>}
+              {!t.requires_access && t.free_days != null && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>From day {t.free_days + 1}: Elite or code</span>}
             </div>
             {t.description && <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 3 }}>{t.description}</div>}
           </button>
@@ -689,7 +690,48 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
   );
 }
 
+function UnlockBox({ title, text, onUnlocked }) {
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const go = async () => {
+    setMsg("");
+    setBusy(true);
+    try {
+      if (await unlockAccess(code)) {
+        setCode("");
+        onUnlocked?.();
+      } else {
+        setMsg("That code is not valid.");
+      }
+    } catch (e) {
+      setMsg(e.message || "Could not check that code.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div style={{ padding: 16, border: BORDER, borderRadius: 12, background: "rgba(168,85,247,0.05)" }}>
+      <p style={{ fontSize: 15, color: "#F5F5F7", fontWeight: 600, margin: "0 0 4px" }}>{title}</p>
+      <p style={{ fontSize: 13, color: "#9CA3AF", margin: "0 0 12px", lineHeight: 1.5 }}>
+        {text} <a href="#plans" style={{ color: "#A855F7" }}>See Elite</a>
+      </p>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Access code" autoCapitalize="off" autoCorrect="off" spellCheck="false" style={{ ...input, marginBottom: 0 }} />
+        <button style={{ ...primaryBtn, opacity: busy || !code.trim() ? 0.6 : 1 }} onClick={go} disabled={busy || !code.trim()}>
+          {busy ? "…" : "Unlock"}
+        </button>
+      </div>
+      {msg && <p style={{ fontSize: 13, color: "#F87171", margin: "8px 0 0" }}>{msg}</p>}
+    </div>
+  );
+}
+
 function LessonView({ enrollment, track, onBack }) {
+  const [hasAccess, setHasAccess] = useState(true);
+  useEffect(() => {
+    getMyAccess().then((a) => setHasAccess(a.full)).catch(() => {});
+  }, []);
   const [view, setView] = useState([]);
   const [subs, setSubs] = useState([]);
   const [progress, setProgress] = useState(null);
@@ -779,6 +821,14 @@ function LessonView({ enrollment, track, onBack }) {
           );
         })}
       </div>
+
+      {track?.free_days != null && !track?.requires_access && !hasAccess && (
+        <UnlockBox
+          title={`Days 1 to ${track.free_days} are free. The rest of ${track.title} is for Elite members.`}
+          text="Unlock the full path with Elite or an access code."
+          onUnlocked={() => window.location.reload()}
+        />
+      )}
 
       {content && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
