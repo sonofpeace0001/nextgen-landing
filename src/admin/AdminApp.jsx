@@ -33,12 +33,13 @@ function CodesTab() {
   const { data, error, reload } = useAsync(() => adminApi.listCodes(), []);
   const [count, setCount] = useState(1);
   const [maxUses, setMaxUses] = useState(1);
+  const [kind, setKind] = useState("elite");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
   const gen = async () => {
     setErr(""); setBusy(true);
-    try { await adminApi.generateCodes({ count: Number(count), max_uses: Number(maxUses) }); reload(); }
+    try { await adminApi.generateCodes(kind === "trial" ? { count: Number(count), max_uses: Number(maxUses), grants: "trial", trial_days: 14 } : { count: Number(count), max_uses: Number(maxUses) }); reload(); }
     catch (e) { setErr(e.message); } finally { setBusy(false); }
   };
   const revoke = async (id) => { try { await adminApi.revokeCode(id); reload(); } catch (e) { setErr(e.message); } };
@@ -46,6 +47,7 @@ function CodesTab() {
   return (
     <div style={card}>
       <div style={{ display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap", marginBottom: 18 }}>
+        <label style={{ fontSize: 12, color: "#9CA3AF" }}>Type<br /><select style={{ ...input, width: 190, marginTop: 4 }} value={kind} onChange={(e) => { setKind(e.target.value); if (e.target.value === "trial") setMaxUses(1000); else setMaxUses(1); }}><option value="elite">Elite (permanent)</option><option value="trial">14-day free trial</option></select></label>
         <label style={{ fontSize: 12, color: "#9CA3AF" }}>Count<br /><input style={{ ...input, width: 80, marginTop: 4 }} type="number" min="1" value={count} onChange={(e) => setCount(e.target.value)} /></label>
         <label style={{ fontSize: 12, color: "#9CA3AF" }}>Max uses<br /><input style={{ ...input, width: 90, marginTop: 4 }} type="number" min="1" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} /></label>
         <button style={{ ...btn, opacity: busy ? 0.6 : 1 }} onClick={gen} disabled={busy}>{busy ? "…" : "Generate codes"}</button>
@@ -53,18 +55,19 @@ function CodesTab() {
       {(err || error) && <p style={errStyle}>{err || error}</p>}
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr><th style={th}>Code</th><th style={th}>Uses</th><th style={th}>Expires</th><th style={th}>Redeemed by</th><th style={th}></th></tr></thead>
+          <thead><tr><th style={th}>Code</th><th style={th}>Type</th><th style={th}>Uses</th><th style={th}>Expires</th><th style={th}>Redeemed by</th><th style={th}></th></tr></thead>
           <tbody>
             {(data?.codes ?? []).map((c) => (
               <tr key={c.id} style={{ opacity: c.revoked ? 0.45 : 1 }}>
                 <td style={{ ...td, fontFamily: "monospace" }}>{c.code}{c.revoked && " (revoked)"}</td>
+                <td style={td}>{c.grants === "trial" ? `${c.trial_days ?? 14}-day trial` : "Elite"}</td>
                 <td style={td}>{c.used_count}/{c.max_uses}</td>
                 <td style={td}>{c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "—"}</td>
                 <td style={td}>{(c.redemptions ?? []).map((r) => r.email).join(", ") || "—"}</td>
                 <td style={td}>{!c.revoked && <button style={{ ...ghost, padding: "5px 10px", fontSize: 12 }} onClick={() => revoke(c.id)}>Revoke</button>}</td>
               </tr>
             ))}
-            {data && data.codes.length === 0 && <tr><td style={td} colSpan={5}>No codes yet.</td></tr>}
+            {data && data.codes.length === 0 && <tr><td style={td} colSpan={6}>No codes yet.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -78,22 +81,30 @@ function MembersTab() {
   const enrByUser = {};
   for (const e of data?.enrollments ?? []) (enrByUser[e.user_id] ||= []).push(e);
   const toggle = async (m) => { try { await adminApi.setElite(m.id, !m.is_elite); reload(); } catch (e) { setErr(e.message); } };
+  const toggleVip = async (m) => { try { await adminApi.setVip(m.id, !m.is_vip); reload(); } catch (e) { setErr(e.message); } };
+  const trialText = (m) => { if (!m.trial_ends_at) return "—"; const ms = new Date(m.trial_ends_at) - Date.now(); return ms > 0 ? `${Math.ceil(ms / 86400000)}d left` : "ended"; };
 
   return (
     <div style={card}>
       {(err || error) && <p style={errStyle}>{err || error}</p>}
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead><tr><th style={th}>Email</th><th style={th}>Role</th><th style={th}>Paths</th><th style={th}>Elite</th></tr></thead>
+          <thead><tr><th style={th}>Email</th><th style={th}>Role</th><th style={th}>Paths</th><th style={th}>Trial</th><th style={th}>Elite</th><th style={th}>VIP</th></tr></thead>
           <tbody>
             {(data?.members ?? []).map((m) => (
               <tr key={m.id}>
                 <td style={td}>{m.email || m.id.slice(0, 8)}</td>
                 <td style={td}>{m.is_admin ? "admin" : "member"}</td>
                 <td style={td}>{(enrByUser[m.id] ?? []).map((e) => `${e.entry_level} (d${e.current_day}/${e.total_days})`).join(", ") || "—"}</td>
+                <td style={td}>{trialText(m)}</td>
                 <td style={td}>
                   <button style={{ ...ghost, padding: "5px 10px", fontSize: 12, borderColor: m.is_elite ? "rgba(168,85,247,0.5)" : undefined, color: m.is_elite ? "#A855F7" : "#F5F5F7" }} onClick={() => toggle(m)}>
                     {m.is_elite ? "Elite ✓" : "Make Elite"}
+                  </button>
+                </td>
+                <td style={td}>
+                  <button style={{ ...ghost, padding: "5px 10px", fontSize: 12, borderColor: m.is_vip ? "rgba(168,85,247,0.5)" : undefined, color: m.is_vip ? "#A855F7" : "#F5F5F7" }} onClick={() => toggleVip(m)}>
+                    {m.is_vip ? "VIP ✓" : "Make VIP"}
                   </button>
                 </td>
               </tr>

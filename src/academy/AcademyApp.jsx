@@ -15,6 +15,7 @@ import { levelState } from "../lib/levels.js";
 import { ENTRY_LEVELS } from "../lib/academyConfig.js";
 import { getMyAccess, unlockAccess } from "../lib/access.js";
 import { Markdown } from "../components/Markdown.jsx";
+import { TrialBanner } from "../components/TrialBanner.jsx";
 
 const ACCENT = "linear-gradient(135deg, #E27FE0 0%, #A855F7 50%, #7C3AED 100%)";
 const BORDER = "1px solid rgba(255,255,255,0.08)";
@@ -308,7 +309,7 @@ function EnrollCard({ onEnrolled }) {
     : selState === "enrollable"
     ? "Enroll"
     : selState === "locked"
-    ? "Locked: Elite or a code"
+    ? "Locked: Elite or VIP"
     : selState === "requires_elite"
     ? "Redeem a code to unlock"
     : "Coming soon";
@@ -331,8 +332,8 @@ function EnrollCard({ onEnrolled }) {
           >
             <div style={{ fontSize: 15, fontWeight: 600, display: "flex", justifyContent: "space-between", gap: 8 }}>
               <span>{t.title}</span>
-              {t.requires_access && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>Elite or code</span>}
-              {!t.requires_access && t.free_days != null && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>From day {t.free_days + 1}: Elite or code</span>}
+              {t.requires_access && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>Elite or VIP</span>}
+              {!t.requires_access && t.free_days != null && !hasAccess && <span style={{ fontSize: 11, fontWeight: 600, color: "#EB97A0" }}>From day {t.free_days + 1}: Elite or VIP</span>}
             </div>
             {t.description && <div style={{ fontSize: 13, color: "#9CA3AF", marginTop: 3 }}>{t.description}</div>}
           </button>
@@ -342,12 +343,12 @@ function EnrollCard({ onEnrolled }) {
 
       {locked && (
         <div style={{ marginBottom: 18, padding: 14, border: BORDER, borderRadius: 10 }}>
-          <p style={{ fontSize: 14, color: "#F5F5F7", fontWeight: 600, margin: "0 0 4px" }}>{selectedTrack.title} is for Elite members</p>
+          <p style={{ fontSize: 14, color: "#F5F5F7", fontWeight: 600, margin: "0 0 4px" }}>{selectedTrack.title} is for Elite and VIP members</p>
           <p style={{ fontSize: 13, color: "#9CA3AF", margin: "0 0 10px", lineHeight: 1.5 }}>
-            Foundations is free. Every category path unlocks with Elite or an access code. <a href="#plans" style={{ color: "#A855F7" }}>See Elite</a>
+            Foundations is free. Every category path unlocks with Elite or VIP. Have an access code or a 14-day trial code? Enter it below. <a href="#plans" style={{ color: "#A855F7" }}>See Elite</a>
           </p>
           <div style={{ display: "flex", gap: 8 }}>
-            <input value={unlockCode} onChange={(e) => setUnlockCode(e.target.value)} placeholder="Access code" autoCapitalize="off" autoCorrect="off" spellCheck="false" style={{ ...input, marginBottom: 0 }} />
+            <input value={unlockCode} onChange={(e) => setUnlockCode(e.target.value)} placeholder="Access or trial code" autoCapitalize="off" autoCorrect="off" spellCheck="false" style={{ ...input, marginBottom: 0 }} />
             <button style={{ ...primaryBtn, opacity: unlockBusy || !unlockCode.trim() ? 0.6 : 1 }} onClick={unlock} disabled={unlockBusy || !unlockCode.trim()}>
               {unlockBusy ? "…" : "Unlock"}
             </button>
@@ -717,7 +718,7 @@ function UnlockBox({ title, text, onUnlocked }) {
         {text} <a href="#plans" style={{ color: "#A855F7" }}>See Elite</a>
       </p>
       <div style={{ display: "flex", gap: 8 }}>
-        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Access code" autoCapitalize="off" autoCorrect="off" spellCheck="false" style={{ ...input, marginBottom: 0 }} />
+        <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Access or trial code" autoCapitalize="off" autoCorrect="off" spellCheck="false" style={{ ...input, marginBottom: 0 }} />
         <button style={{ ...primaryBtn, opacity: busy || !code.trim() ? 0.6 : 1 }} onClick={go} disabled={busy || !code.trim()}>
           {busy ? "…" : "Unlock"}
         </button>
@@ -776,6 +777,7 @@ function LessonView({ enrollment, track, onBack }) {
 
   return (
     <div style={{ width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 18 }}>
+      <TrialBanner />
       <button style={{ ...ghostBtn, alignSelf: "flex-start", padding: "7px 14px", fontSize: 13 }} onClick={onBack}>
         ← Back
       </button>
@@ -824,8 +826,8 @@ function LessonView({ enrollment, track, onBack }) {
 
       {track?.free_days != null && !track?.requires_access && !hasAccess && (
         <UnlockBox
-          title={`Days 1 to ${track.free_days} are free. The rest of ${track.title} is for Elite members.`}
-          text="Unlock the full path with Elite or an access code."
+          title={`Days 1 to ${track.free_days} are free. The rest of ${track.title} is for Elite and VIP members.`}
+          text="Unlock the full path with Elite or VIP, or enter an access or 14-day trial code."
           onUnlocked={() => window.location.reload()}
         />
       )}
@@ -947,6 +949,7 @@ function Dashboard({ session }) {
 
   return (
     <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", gap: 20 }}>
+      <TrialBanner />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 13, color: "#9CA3AF" }}>{session.user.email}</span>
         <button style={{ ...ghostBtn, padding: "7px 14px", fontSize: 13 }} onClick={() => signOut()}>Sign out</button>

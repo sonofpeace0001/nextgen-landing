@@ -17,6 +17,7 @@ export const adminApi = {
   // members
   listMembers: () => call("member.list"),
   setElite: (user_id, is_elite) => call("member.setElite", { user_id, is_elite }),
+  setVip: (user_id, is_vip) => call("member.setVip", { user_id, is_vip }),
   // content
   upsertDay: (day) => call("content.upsertDay", { day }),
   publishDay: (id, is_published) => call("content.publishDay", { id, is_published }),
