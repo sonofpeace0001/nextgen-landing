@@ -8,7 +8,7 @@ import { DEFAULT_UNLOCK_MODE } from "./academyConfig.js";
 export async function listPublishedTracks(supabase) {
   const { data, error } = await supabase
     .from("track")
-    .select("id, slug, title, description, requires_access")
+    .select("id, slug, title, description, requires_access, free_days")
     .eq("is_published", true)
     .order("sort_order");
   if (error) throw error;
