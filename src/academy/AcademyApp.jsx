@@ -609,6 +609,10 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
   const submit = async () => {
     setError("");
     if (!text.trim()) return setError("Write your assignment response first.");
+    if (text.trim().length < 20) return setError("Write a little more (at least 20 characters) so your work can be scored.");
+    if (day.submission_type === "link" && !/https?:\/\//i.test(text)) {
+      return setError("This assignment needs a link. Paste the link to your work (it starts with http).");
+    }
     const selfNum = self === "" ? null : Number(self);
     if (selfNum !== null && (Number.isNaN(selfNum) || selfNum < 0 || selfNum > 100)) {
       return setError("Self-score must be 0–100.");
@@ -687,6 +691,25 @@ function SubmitPanel({ day, enrollmentId, onSubmitted }) {
       <button style={{ ...primaryBtn, alignSelf: "flex-start", opacity: busy ? 0.6 : 1 }} onClick={submit} disabled={busy}>
         {scoring ? "Scoring your work…" : busy ? "Submitting…" : "Submit"}
       </button>
+    </div>
+  );
+}
+
+function SelfCheck({ rubric }) {
+  if (!Array.isArray(rubric) || rubric.length === 0) return null;
+  return (
+    <div style={{ border: "1px solid rgba(168,85,247,0.35)", background: "rgba(168,85,247,0.06)", borderRadius: 12, padding: 16, width: "100%", boxSizing: "border-box" }}>
+      <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#A855F7", fontWeight: 700 }}>Check your own work</span>
+      <p style={{ fontSize: 13, color: "#9CA3AF", margin: "8px 0 0", lineHeight: 1.5 }}>
+        This is a practice day, so it is not scored. Read your answer against each point and fix what is missing before you move on.
+      </p>
+      <ul style={{ margin: "10px 0 0", paddingLeft: 18, listStyle: "disc", color: "#D1D5DB", fontSize: 14, lineHeight: 1.6 }}>
+        {rubric.map((r, i) => (
+          <li key={i}>
+            <b>{r.criterion}:</b> {r.guidance}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -871,9 +894,16 @@ function LessonView({ enrollment, track, onBack }) {
                 return (
                   <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
                     <p style={{ fontSize: 13, color: "#34D399", margin: 0 }}>
-                      {existing?.status === "pending_review" ? "Submitted · the next day opens once a person approves it" : `Completed · score ${existing?.score ?? "—"}`}
+                      {existing?.status === "pending_review"
+                        ? "Submitted · the next day opens once a person approves it"
+                        : existing?.score == null
+                        ? "Completed · practice day (not scored)"
+                        : `Completed · score ${existing.score}`}
                     </p>
                     {existing && <FeedbackCard sub={existing} onChanged={load} />}
+                    {existing && existing.status === "scored" && existing.score == null && !existing.feedback && !existing.ai_feedback && (
+                      <SelfCheck rubric={content.rubric} />
+                    )}
                     {hasNext ? (
                       <button
                         style={{ ...primaryBtn, opacity: nextUnlocked ? 1 : 0.6, cursor: nextUnlocked ? "pointer" : "not-allowed" }}

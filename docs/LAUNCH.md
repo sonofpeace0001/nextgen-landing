@@ -44,3 +44,5 @@ Live at https://nextgenai-web.vercel.app. Last updated 26 September 2026.
 - Peer-review and mentoring days assume a community with enough members.
 - The Elite gate on Intermediate/Advanced entry is unchanged.
 - Members cannot delete their own account in the app; they ask on Discord (see Privacy).
+- Most days (98 of 120 per category) are practice days: no quiz, no AI score, no human review. They complete on submission with a self-check against the rubric and no score. Turn on AI scoring for them only after `ANTHROPIC_API_KEY` is set and you have decided the cost; until then every AI-scored day waits in Admin > Review.
+- Submissions need at least 20 characters, and link days need a link. A failed quiz now tells the member the score, the pass mark and which question numbers to recheck.

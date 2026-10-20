@@ -84,7 +84,7 @@ suite("progress view", () => {
 
     clientA = await signIn(emailA);
     clientB = await signIn(emailB);
-    await submitDay(clientA, { enrollmentId: enrollment.id, dayId: d1.id, content: "x", selfScore: 80, answers: [0] });
+    await submitDay(clientA, { enrollmentId: enrollment.id, dayId: d1.id, content: "a full answer for the progress test", selfScore: 80, answers: [0] });
   });
 
   afterAll(async () => {

@@ -88,7 +88,7 @@ suite("submit_day RPC", () => {
 
   it("auto-grades correct answers and composes the final score", async () => {
     const sub = await submitDay(clientA, {
-      enrollmentId: enrollment.id, dayId: day1.id, content: "my answer", selfScore: 80, answers: [1, 0],
+      enrollmentId: enrollment.id, dayId: day1.id, content: "my answer is long enough to count", selfScore: 80, answers: [1, 0],
     });
     expect(Number(sub.check_score)).toBe(100); // both correct
     expect(Number(sub.self_score)).toBe(80);
@@ -98,7 +98,7 @@ suite("submit_day RPC", () => {
 
   it("marks a failing check as needs_revision", async () => {
     const sub = await submitDay(clientA, {
-      enrollmentId: enrollment.id, dayId: day2.id, content: "x", answers: [1], // wrong (answer is 0)
+      enrollmentId: enrollment.id, dayId: day2.id, content: "an answer that gets the quiz wrong", answers: [1], // wrong (answer is 0)
     });
     expect(Number(sub.check_score)).toBe(0);
     expect(sub.status).toBe("needs_revision");
@@ -106,7 +106,7 @@ suite("submit_day RPC", () => {
 
   it("does NOT let a student overwrite their own score", async () => {
     const before = await clientA.from("submission").select("score").eq("id", (await submitDay(clientA, {
-      enrollmentId: enrollment.id, dayId: day1.id, content: "again", selfScore: 80, answers: [1, 0],
+      enrollmentId: enrollment.id, dayId: day1.id, content: "trying again with a full answer", selfScore: 80, answers: [1, 0],
     })).id).single();
     // attempt a direct update (no UPDATE policy exists -> silently affects 0 rows)
     await clientA.from("submission").update({ score: 100, check_score: 100 }).eq("enrollment_id", enrollment.id);
@@ -117,7 +117,7 @@ suite("submit_day RPC", () => {
 
   it("rejects submitting to someone else's enrollment (IDOR)", async () => {
     await expect(
-      submitDay(clientB, { enrollmentId: enrollment.id, dayId: day1.id, content: "hack", answers: [1, 0] })
+      submitDay(clientB, { enrollmentId: enrollment.id, dayId: day1.id, content: "someone else trying to submit", answers: [1, 0] })
     ).rejects.toThrow(/not authorized/i);
   });
 
@@ -126,7 +126,22 @@ suite("submit_day RPC", () => {
     // blocked at the permission layer — even stronger than the in-body auth check.
     const anon = createClient(url, anonKey, { auth: { persistSession: false } });
     await expect(
-      submitDay(anon, { enrollmentId: enrollment.id, dayId: day1.id, content: "x", answers: [1, 0] })
+      submitDay(anon, { enrollmentId: enrollment.id, dayId: day1.id, content: "an answer that gets the quiz wrong", answers: [1, 0] })
     ).rejects.toThrow(/permission denied|not authenticated/i);
+  });
+
+  it("refuses a too-short answer", async () => {
+    await expect(
+      submitDay(clientA, { enrollmentId: enrollment.id, dayId: day1.id, content: "Not bad", answers: [1, 0] })
+    ).rejects.toThrow(/at least 20 characters/);
+  });
+
+  it("explains a failed quiz with the score, pass mark and question numbers", async () => {
+    const sub = await submitDay(clientA, {
+      enrollmentId: enrollment.id, dayId: day2.id, content: "an answer that gets the quiz wrong", answers: [1],
+    });
+    expect(sub.status).toBe("needs_revision");
+    expect(sub.feedback).toMatch(/quiz questions right/);
+    expect(sub.feedback).toMatch(/Recheck question/);
   });
 });
